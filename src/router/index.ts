@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Login from '../views/Login.vue'
-import Dashboard from '../views/Dashboard.vue'
+import Overview from '../views/Overview.vue'
 
 Vue.use(VueRouter)
 
@@ -20,7 +20,7 @@ const routes: Array<RouteConfig> = [
         meta: {
             layout: 'default'
         },
-        component: Dashboard
+        component: Overview
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
