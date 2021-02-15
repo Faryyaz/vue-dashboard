@@ -3,16 +3,18 @@
         <top-bar v-on:toggle-sidebar="toggleSidebar()"></top-bar>
         <side-bar :mini-variant="miniVariant"></side-bar>
         <v-main>
-            <transition name="fade" mode="out-in">
-                <router-view></router-view>
-            </transition>
+            <v-container>
+                <transition name="fade" mode="out-in">
+                    <router-view></router-view>
+                </transition>
+            </v-container>
         </v-main>
     </main>
 </template>
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import SideBar from "../components/SideBar.vue";
-import TopBar from "../components/TopBar.vue";
+import { Component, Vue } from 'vue-property-decorator';
+import SideBar from '../components/SideBar.vue';
+import TopBar from '../components/TopBar.vue';
 
 @Component({
     components: {

@@ -8,6 +8,17 @@ Vue.use(Vuetify)
 
 const opts = {
     iconfont: 'md',
+    theme: {
+        themes: {
+            light: {
+                background: '#f2f2f2'
+            }
+        },
+        options: {
+            customProperties: true
+        },
+    }
+
 }
 
 export default new Vuetify(opts)

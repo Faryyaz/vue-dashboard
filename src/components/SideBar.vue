@@ -36,7 +36,7 @@
                     </v-list-item-content>
                 </template>
 
-                <v-list-item color="white" v-for="child in item.items" :key="child.title" :to="{ name: item.to}">
+                <v-list-item color="white" v-for="child in item.items" :key="child.title" route :to="{ name: child.to }">
                     <v-list-item-content>
                         <v-list-item-title
                             v-text="child.title"
@@ -48,8 +48,7 @@
     </v-navigation-drawer>
 </template>
 <script lang="ts">
-import Analytics from "@/views/Analytics.vue";
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop } from 'vue-property-decorator';
 
 @Component
 export default class SideBar extends Vue {
@@ -58,22 +57,32 @@ export default class SideBar extends Vue {
 
     items: Array<any> = [
         {
-            title: "Dashboard",
-            icon: "dashboard",
+            title: 'Dashboard',
+            icon: 'dashboard',
             active: true,
             items: [
                 {
-                    title: "Overview",
-                    to: 'overview'
+                    title: 'Overview',
+                    to: 'Overview'
                 },
                 {
-                    title: "Analytics",
-                    to: 'analytics'
+                    title: 'Analytics',
+                    to: 'Analytics'
                 },
             ],
         },
-        { title: "Account", icon: "account_box" },
-        { title: "Admin", icon: "gavel" },
+        { title: 'Account', icon: 'account_box' },
+        { 
+            title: 'Admin', 
+            icon: 'gavel', 
+            active: false,
+            items: [
+                {
+                    title: 'Users',
+                    to: 'Users'
+                }
+            ]
+        },
     ];
 }
 </script>
