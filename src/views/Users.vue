@@ -30,14 +30,23 @@
                                     {{ item.lastName }}
                                 </td>
                                 <td>
-                                    {{ item.accountType }}
+                                    <v-chip small color="orange darken-1" 
+                                        outlined
+                                        v-if="item.accountType === eAccountType.admin">
+                                        {{ item.accountType }}
+                                    </v-chip>
+                                    <v-chip small color="info" 
+                                        outlined
+                                        v-else-if="item.accountType === eAccountType.visitor">
+                                        {{ item.accountType }}
+                                    </v-chip>
                                 </td>
                                 <td class="text-center">
                                     <v-btn 
                                         class="ma-2" 
                                         icon 
                                         color="primary"
-                                        @click="editUser(item)"
+                                        @click="onEditUser(item)"
                                     >
                                         <v-icon>create</v-icon>
                                     </v-btn>
@@ -45,7 +54,7 @@
                                         class="ma-2"
                                         icon
                                         color="red darken-2"
-                                        @click="deleteUser(index)"
+                                        @click="showDeleteConfirmation(index)"
                                     >
                                         <v-icon>delete</v-icon>
                                     </v-btn>
@@ -57,68 +66,99 @@
             </v-card>
 
             <!-- edit dialog -->
-            <v-dialog v-model="dialog" width="500">
+            <v-dialog v-model="editDialog" width="500" persistent>
                 <v-card>
                     <v-card-title class="headline blue-grey darken-4 white--text">
                         Edit account type
                     </v-card-title>
-                    <v-card-text>
-                        //@TODO complete this content
+                    <v-card-text class="pt-4">
+                        <template v-for="field in editForm">
+                            <component
+                                :key="field.attr.name"
+                                :is="field.type"
+                                v-model="field.value"
+                                v-bind="field.attr"
+                            ></component>
+                        </template>
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn depressed @click="dialog = false">
+                        <v-btn depressed @click="editDialog = false">
                             Cancel
                         </v-btn>
-                        <v-btn depressed color="primary" >
+                        <v-btn depressed color="primary" @click="editUser()">
                             Save
                         </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
 
-            <!-- @TODO add delete dialog -->
+            <!-- delete dialog -->
+            <v-dialog v-model="deleteDialog" width="500" persistent>
+                <v-card>
+                    <v-card-title class="headline blue-grey darken-4 white--text">
+                        Delete confirmation
+                    </v-card-title>
+                    <v-card-text class="pt-4">
+                        Are you sure you want to delete this record?
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn depressed @click="deleteDialog = false">
+                            Cancel
+                        </v-btn>
+                        <v-btn depressed color="primary" @click="deleteUser()">
+                            Confirm
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-col>
     </v-row>
 </template>
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import TUser from "../datamodels/User";
+import { Component, Vue } from 'vue-property-decorator';
+import { TUser, EAccountType } from '../datamodels/User';
 
 @Component
 export default class Users extends Vue {
-    dialog = false;
+    editDialog = false;
+    deleteDialog = false;
     search = '';
+    eAccountType = EAccountType;
+
+    confirmDeleteIndex: number|null;
     headers: Array<Record<string, any>> = [
         {
-            text: "ID",
-            align: "start",
+            text: 'ID',
+            align: 'start',
             sortable: false,
-            value: "id",
+            value: 'id',
         },
         {
-            text: "First name",
-            align: "start",
+            text: 'First name',
+            align: 'start',
             sortable: false,
-            value: "firstName",
+            value: 'firstName',
         },
         {
-            text: "Last name",
-            align: "start",
+            text: 'Last name',
+            align: 'start',
             sortable: false,
-            value: "lastName",
+            value: 'lastName',
         },
         {
-            text: "Account type",
-            align: "start",
+            text: 'Account type',
+            align: 'start',
             sortable: true,
-            value: "accountType",
+            value: 'accountType',
         },
         {
-            text: "",
-            align: "center",
-            value: "action",
+            text: '',
+            align: 'center',
+            value: 'action',
             sortable: false,
         },
     ];
@@ -126,31 +166,84 @@ export default class Users extends Vue {
     items: Array<TUser> = [
         {
             id: 1,
-            firstName: "John",
-            lastName: "Doe",
-            accountType: "admin",
+            firstName: 'John',
+            lastName: 'Doe',
+            accountType: 'admin',
         },
         {
             id: 2,
-            firstName: "Jane",
-            lastName: "Smith",
-            accountType: "visitor",
+            firstName: 'Jane',
+            lastName: 'Smith',
+            accountType: 'visitor',
         },
         {
             id: 3,
-            firstName: "Tom",
-            lastName: "Hardy",
-            accountType: "visitor",
+            firstName: 'Tom',
+            lastName: 'Hardy',
+            accountType: 'visitor',
         },
         {
             id: 4,
-            firstName: "Nicola",
-            lastName: "Cage",
-            accountType: "visitor",
+            firstName: 'Nicola',
+            lastName: 'Cage',
+            accountType: 'visitor',
         }
     ];
 
-    //@TODO define form for dialog
+
+    editForm: { [key: string]: any } = {
+        'id': {
+            type: 'v-text-field',
+            value: '',
+            attr: {
+                label: 'ID',
+                name: 'id',
+                disabled: true
+            }
+        },
+        'firstName': {
+            type: 'v-text-field',
+            value: '',
+            attr: {
+                label: 'First Name',
+                name: 'firstName',
+                disabled: true
+            }
+        },
+        'lastName': {
+            type: 'v-text-field',
+            value: '',
+            attr: {
+                label: 'Last Name',
+                name: 'lastName',
+                disabled: true
+            }
+        },
+        'accountType': {
+            type: 'v-select',
+            value: '',
+            attr: {
+                label: 'Account Type',
+                name: 'accountType',
+                disabled: false,
+                items: [
+                    {
+                        text: 'Admin',
+                        value: 'admin'
+                    },
+                    {
+                        text: 'Visitor',
+                        value: 'visitor'
+                    }
+                ]
+            }
+        }
+    }
+
+    constructor () {
+        super();
+        this.confirmDeleteIndex = null;
+    }
 
     /**
      * Search for a specific user
@@ -161,26 +254,51 @@ export default class Users extends Vue {
         return (
             value != null &&
             search != null &&
-            typeof value === "string" &&
+            typeof value === 'string' &&
             value.toString().indexOf(search) !== -1
         );
     }
 
-    /**
-     * Delete a user from the table
-     * @param {number} index
-     */
-    deleteUser(index: number) {
-        // @TODO add delete dialog
-        //@TODO place this in axios when it is a success
-        this.items.splice(index, 1);
+    showDeleteConfirmation(index: number) {
+        this.confirmDeleteIndex = index;
+        this.deleteDialog = true;
     }
 
     /**
-     * edit user's account type
+     * Delete a user from the table
      */
-    editUser(user: TUser) {
-        this.dialog = true;
+    deleteUser() {
+        //@TODO place this in axios when it is a success
+        if (this.confirmDeleteIndex !== null) {
+            this.items.splice(this.confirmDeleteIndex, 1);
+            this.confirmDeleteIndex = null;
+            this.deleteDialog = false;
+        }
+    }
+
+    /**
+     * show the edit dialog
+     */
+    onEditUser(user: any) {
+        this.editDialog = true;
+        for (const property in this.editForm) {
+            this.editForm[property].value = user[property];
+        }
+    }
+
+    /**
+     * edit the user and save
+     */
+    editUser() {
+        const id: number = this.editForm.id.value;
+
+        //@TODO place this in axios when it is a success
+        this.items.forEach((user: TUser) => {
+            if (user.id === id) {
+                this.$set(user, 'accountType', this.editForm.accountType.value);
+            }
+        });
+        this.editDialog = false;
     }
 }
 </script>

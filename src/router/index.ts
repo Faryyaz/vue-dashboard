@@ -2,7 +2,9 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Login from '../views/Login.vue'
 import Overview from '../views/Overview.vue'
+import Analytics from '../views/Analytics.vue'
 import Users from '../views/Users.vue'
+import Account from '../views/Account.vue'
 
 Vue.use(VueRouter)
 
@@ -17,7 +19,7 @@ const routes: Array<RouteConfig> = [
     },
     {
         path: '/',
-        name: 'Dashboard',
+        name: 'Overview',
         meta: {
             layout: 'default'
         },
@@ -28,12 +30,28 @@ const routes: Array<RouteConfig> = [
         // component: () => import(/* webpackChunkName: "about" */ '../views/Dashboard.vue')
     },
     {
+        path: '/analytics',
+        name: 'Analytics',
+        meta: {
+            layout: 'default'
+        },
+        component: Analytics
+    },
+    {
         path: '/users',
         name: 'Users',
         meta: {
             layout: 'default'
         },
         component: Users
+    },
+    {
+        path: '/account',
+        name: 'Account',
+        meta: {
+            layout: 'default'
+        },
+        component: Account
     }
 ]
 
