@@ -3,7 +3,7 @@
         <v-app-bar-nav-icon @click="$emit('toggle-sidebar')"></v-app-bar-nav-icon>
         <v-toolbar-title>
             <div class="d-flex align-center">
-                <v-icon class="mr-1">star_half</v-icon>
+                <v-icon class="mr-1">stacked_bar_chart</v-icon>
                 <span class="font-weight-bold">Vue</span>
                 <span class="">-Dasboard</span>
             </div>
