@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import Login from '../views/Login.vue'
+import Account from '../views/Account.vue'
 import Overview from '../views/Overview.vue'
 import Analytics from '../views/Analytics.vue'
 import Users from '../views/Users.vue'
-import Account from '../views/Account.vue'
+import Profile from '../views/Profile.vue'
 
 Vue.use(VueRouter)
 
@@ -13,9 +13,19 @@ const routes: Array<RouteConfig> = [
         path: '/login',
         name: 'Login',
         meta: {
-            layout: 'no-side-bar'
+            layout: 'no-side-bar',
+            param: 'login'
         },
-        component: Login
+        component: Account
+    },
+    {
+        path: '/signup',
+        name: 'SignUp',
+        meta: {
+            layout: 'no-side-bar',
+            param: 'signup'
+        },
+        component: Account
     },
     {
         path: '/',
@@ -46,12 +56,12 @@ const routes: Array<RouteConfig> = [
         component: Users
     },
     {
-        path: '/account',
-        name: 'Account',
+        path: '/profile',
+        name: 'Profile',
         meta: {
             layout: 'default'
         },
-        component: Account
+        component: Profile
     }
 ]
 

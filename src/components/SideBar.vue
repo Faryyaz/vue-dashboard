@@ -95,9 +95,9 @@ export default class SideBar extends Vue {
             ],
         },
         {
-            title: "Account",
+            title: "Profile",
             icon: "account_box",
-            to: "Account",
+            to: "Profile",
         },
         {
             title: "Admin",
