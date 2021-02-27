@@ -1,7 +1,8 @@
 <template>
     <v-form>
         <template v-for="field in form">
-            <component 
+            <component
+                :prepend-icon="field.icon" 
                 :key="field.attr.name" 
                 :is="field.type"
                 v-model="field.value"
@@ -28,6 +29,7 @@ export default class Login extends Vue {
         email: {
             type: 'v-text-field',
             value: '',
+            icon: 'email',
             attr: {
                 label: 'Email',
                 name: 'email',
@@ -37,6 +39,7 @@ export default class Login extends Vue {
         password: {
             type: 'v-text-field',
             value: '',
+            icon: 'lock',
             attr: {
                 type: 'password',
                 label: 'Password',
