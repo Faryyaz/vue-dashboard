@@ -24,6 +24,9 @@
                                     {{ item.id }}
                                 </td>
                                 <td>
+                                    {{ item.email }}
+                                </td>
+                                <td>
                                     {{ item.firstName }}
                                 </td>
                                 <td>
@@ -32,13 +35,13 @@
                                 <td>
                                     <v-chip small color="orange darken-1" 
                                         outlined
-                                        v-if="item.accountType === eAccountType.admin">
-                                        {{ item.accountType }}
+                                        v-if="item.role === erole.admin">
+                                        {{ item.role }}
                                     </v-chip>
                                     <v-chip small color="info" 
                                         outlined
-                                        v-else-if="item.accountType === eAccountType.visitor">
-                                        {{ item.accountType }}
+                                        v-else-if="item.role === erole.visitor">
+                                        {{ item.role }}
                                     </v-chip>
                                 </td>
                                 <td class="text-center">
@@ -69,7 +72,7 @@
             <v-dialog v-model="editDialog" width="500" persistent>
                 <v-card>
                     <v-card-title class="headline blue-grey darken-4 white--text">
-                        Edit account type
+                        Edit role
                     </v-card-title>
                     <v-card-text class="pt-4">
                         <template v-for="field in editForm">
@@ -120,14 +123,14 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { TUser, EAccountType } from '../datamodels/User';
+import { TUser, ERole } from '../datamodels/User';
 
 @Component
 export default class Users extends Vue {
     editDialog = false;
     deleteDialog = false;
     search = '';
-    eAccountType = EAccountType;
+    erole = ERole;
 
     confirmDeleteIndex: number|null;
     headers: Array<Record<string, any>> = [
@@ -136,6 +139,12 @@ export default class Users extends Vue {
             align: 'start',
             sortable: false,
             value: 'id',
+        },
+        {
+            text: 'Email',
+            align: 'start',
+            sortable: false,
+            value: 'email',
         },
         {
             text: 'First name',
@@ -150,10 +159,10 @@ export default class Users extends Vue {
             value: 'lastName',
         },
         {
-            text: 'Account type',
+            text: 'Role',
             align: 'start',
             sortable: true,
-            value: 'accountType',
+            value: 'role',
         },
         {
             text: '',
@@ -166,27 +175,31 @@ export default class Users extends Vue {
     items: Array<TUser> = [
         {
             id: 1,
+            email: 'john@doe.com',
             firstName: 'John',
             lastName: 'Doe',
-            accountType: 'admin',
+            role: 'admin',
         },
         {
             id: 2,
+            email: 'jane@smith.com',
             firstName: 'Jane',
             lastName: 'Smith',
-            accountType: 'visitor',
+            role: 'visitor',
         },
         {
             id: 3,
+            email: 'tom@hardy.com',
             firstName: 'Tom',
             lastName: 'Hardy',
-            accountType: 'visitor',
+            role: 'visitor',
         },
         {
             id: 4,
+            email: 'nicola@cage.com',
             firstName: 'Nicola',
             lastName: 'Cage',
-            accountType: 'visitor',
+            role: 'visitor',
         }
     ];
 
@@ -198,6 +211,15 @@ export default class Users extends Vue {
             attr: {
                 label: 'ID',
                 name: 'id',
+                disabled: true
+            }
+        },
+        'email': {
+            type: 'v-text-field',
+            value: '',
+            attr: {
+                label: 'Email',
+                name: 'email',
                 disabled: true
             }
         },
@@ -219,12 +241,12 @@ export default class Users extends Vue {
                 disabled: true
             }
         },
-        'accountType': {
+        'role': {
             type: 'v-select',
             value: '',
             attr: {
                 label: 'Account Type',
-                name: 'accountType',
+                name: 'role',
                 disabled: false,
                 items: [
                     {
@@ -295,7 +317,7 @@ export default class Users extends Vue {
         //@TODO place this in axios when it is a success
         this.items.forEach((user: TUser) => {
             if (user.id === id) {
-                this.$set(user, 'accountType', this.editForm.accountType.value);
+                this.$set(user, 'role', this.editForm.role.value);
             }
         });
         this.editDialog = false;

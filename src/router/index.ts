@@ -5,6 +5,9 @@ import Overview from '../views/Overview.vue'
 import Analytics from '../views/Analytics.vue'
 import Users from '../views/Users.vue'
 import Profile from '../views/Profile.vue'
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import store from '../store'
 
 Vue.use(VueRouter)
 
@@ -14,7 +17,8 @@ const routes: Array<RouteConfig> = [
         name: 'Login',
         meta: {
             layout: 'no-side-bar',
-            param: 'login'
+            param: 'login',
+            requiresAuth: false
         },
         component: Account
     },
@@ -23,7 +27,8 @@ const routes: Array<RouteConfig> = [
         name: 'SignUp',
         meta: {
             layout: 'no-side-bar',
-            param: 'signup'
+            param: 'signup',
+            requiresAuth: false
         },
         component: Account
     },
@@ -31,7 +36,8 @@ const routes: Array<RouteConfig> = [
         path: '/',
         name: 'Overview',
         meta: {
-            layout: 'default'
+            layout: 'default',
+            requiresAuth: true
         },
         component: Overview
         // route level code-splitting
@@ -43,7 +49,8 @@ const routes: Array<RouteConfig> = [
         path: '/analytics',
         name: 'Analytics',
         meta: {
-            layout: 'default'
+            layout: 'default',
+            requiresAuth: true
         },
         component: Analytics
     },
@@ -51,7 +58,8 @@ const routes: Array<RouteConfig> = [
         path: '/users',
         name: 'Users',
         meta: {
-            layout: 'default'
+            layout: 'default',
+            requiresAuth: true
         },
         component: Users
     },
@@ -59,7 +67,8 @@ const routes: Array<RouteConfig> = [
         path: '/profile',
         name: 'Profile',
         meta: {
-            layout: 'default'
+            layout: 'default',
+            requiresAuth: true
         },
         component: Profile
     }
@@ -70,5 +79,16 @@ const router = new VueRouter({
     base: process.env.BASE_URL,
     routes
 })
+
+router.beforeEach((to, from, next) => {
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+    const isAuthenticated = store.state.preload.user.email !== '';
+
+    if (requiresAuth && !isAuthenticated) {
+        next('/login');
+    } else {
+        next();
+    }
+});
 
 export default router

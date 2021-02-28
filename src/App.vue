@@ -1,20 +1,16 @@
 <template>
     <v-app>
-        <component :is="layout"></component>
+        <layout></layout>
     </v-app>
 </template>
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator"
-import Default from './layout/Default.vue'
-import NoSideBar from './layout/NoSideBar.vue'
+import Layout from './layout/Layout.vue'
 
 @Component({
     components: {
-        Default,
-        NoSideBar
+        Layout
     }
 })
-export default class App extends Vue {
-    layout: string = this.$route.meta.layout;
-}
+export default class App extends Vue {}
 </script>

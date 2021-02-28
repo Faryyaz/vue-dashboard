@@ -22,6 +22,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 
 @Component
 export default class SignUp extends Vue {
@@ -78,6 +80,11 @@ export default class SignUp extends Vue {
                 required: true
             }
         }
+    }
+
+    test() {
+        const auth = firebase.auth();
+        return auth;
     }
 }
 </script>

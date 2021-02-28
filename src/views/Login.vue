@@ -1,5 +1,5 @@
 <template>
-    <v-form>
+    <v-form @submit.prevent="onLogin">
         <template v-for="field in form">
             <component
                 :prepend-icon="field.icon" 
@@ -47,6 +47,19 @@ export default class Login extends Vue {
                 required: true
             }
         }
+    }
+
+    onLogin() {
+        const email = this.form.email.value,
+              password = this.form.password.value;
+
+        this.$store.dispatch('authenticate', { email, password })
+            .then((userCredential) => {
+                console.log('cred', userCredential);
+                if (userCredential) {
+                    this.$router.push({ name: 'Overview' });
+                }
+            });
     }
 }
 </script>
