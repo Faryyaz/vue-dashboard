@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import firebase from 'firebase/app'
-import 'firebase/auth'
-import axios from 'axios'
+import * as fb from '../firebase'
+import router from '../router'
+
 
 Vue.use(Vuex)
 
@@ -18,38 +18,67 @@ export default new Vuex.Store({
         }
     },
     mutations: {
-        setPreload(state, user) {
+        setUserProfile(state, user) {
             state.preload.user = user;
-            // console.log(state.preload);
+        },
+
+        unsetUserProfile(state) {
+            state.preload.user = {
+                email: '',
+                firstName: '',
+                lastName: '',
+                role: ''
+            }
         }
     },
     actions: {
-        authenticate({
-            commit
+        async authenticate({
+            dispatch
         }, { email, password }: { email: string; password: string }) {
-            let fullName: any = ['', ''],
-                firstName = '',
-                lastName = '';
-            //@TODO retrive user role
-            return firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    if (userCredential) {
-                        fullName = userCredential.user?.displayName !== '' ? userCredential.user?.displayName?.split(' ') : [];
+            try {
+                // sign user in
+                const { user } = await fb.auth.signInWithEmailAndPassword(email, password);
 
-                        if (fullName) {
-                            firstName = fullName[0];
-                            lastName = fullName[1];
-                        }
+                // fetch user profile and set in state
+                if (user) {
+                    dispatch('fetchUserProfile', user)
+                }
+            } catch (error) {
 
-                        commit('setPreload', {
-                            email: userCredential.user?.email,
-                            firstName: firstName,
-                            lastName: lastName
-                        });
+                //something wrong
+                console.error(error);
+            }
+        },
 
-                        return Promise.resolve(Object.assign({}, userCredential));
-                    }
-                });
+        async logout({ commit }) {
+            try {
+
+                // firebase sign out
+                await fb.auth.signOut();
+
+                // remove the user profile state
+                commit('unsetUserProfile');
+            } catch (error) {
+
+                //something wrong
+                console.error(error);
+            }
+        },
+
+        async fetchUserProfile({ commit }, user) {
+            try {
+                // fetch user profile
+                const userProfile = await fb.usersCollection.doc(user.uid).get();
+
+                if (userProfile) {
+                    // set user profile in state
+                    commit('setUserProfile', userProfile.data());
+                }
+            } catch (error) {
+
+                //something wrong
+                console.error(error);
+            }
         }
     },
     modules: {

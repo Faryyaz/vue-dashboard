@@ -1,5 +1,5 @@
 <template>
-    <v-form>
+    <v-form @submit.prevent="onSignUp" v-model="valid">
         <template v-for="field in form">
             <component 
                 :prepend-icon="field.icon"
@@ -22,11 +22,11 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import firebase from 'firebase/app'
-import 'firebase/auth'
+import * as fb from '../firebase'
 
 @Component
 export default class SignUp extends Vue {
+    valid = false;
     form = {
         email: {
             type: 'v-text-field',
@@ -58,6 +58,21 @@ export default class SignUp extends Vue {
                 required: true
             }
         },
+        role: {
+            type: 'v-select',
+            value: '',
+            icon: 'accessibility',
+            attr: {
+                label: 'Role',
+                name: 'role',
+                required: true,
+                items: [
+                    { text: 'Admin', value: 'admin' },
+                    { text: 'Staff', value: 'staff' },
+                    { text: 'Visitor', value: 'visitor' }
+                ]
+            }
+        },
         password: {
             type: 'v-text-field',
             value: '',
@@ -82,9 +97,21 @@ export default class SignUp extends Vue {
         }
     }
 
-    test() {
-        const auth = firebase.auth();
-        return auth;
+    async onSignUp() {
+        if (this.valid) {
+            const { user } = await fb.auth.createUserWithEmailAndPassword(this.form.email.value, this.form.password.value);
+
+            // create user profile object in userCollections
+            if (user) {
+                await fb.usersCollection.doc(user.uid).set({
+                    email: this.form.email.value,
+                    firstName: this.form.firstName.value,
+                    lastName: this.form.lastName.value,
+                    role: this.form.role.value
+                });
+            }
+            
+        }
     }
 }
 </script>

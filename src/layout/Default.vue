@@ -12,9 +12,9 @@
     </main>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import SideBar from '../components/SideBar.vue';
-import TopBar from '../components/TopBar.vue';
+import { Component, Vue } from "vue-property-decorator";
+import SideBar from "../components/SideBar.vue";
+import TopBar from "../components/TopBar.vue";
 
 @Component({
     components: {
@@ -30,3 +30,16 @@ export default class Default extends Vue {
     }
 }
 </script>
+<style lang="css">
+.fade-enter-active,
+.fade-leave-active {
+    transition-duration: 0.3s;
+    transition-property: opacity;
+    transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+    opacity: 0;
+}
+</style>

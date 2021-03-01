@@ -1,5 +1,5 @@
 <template>
-    <v-form @submit.prevent="onLogin">
+    <v-form @submit.prevent="onLogin" v-model="valid">
         <template v-for="field in form">
             <component
                 :prepend-icon="field.icon" 
@@ -25,6 +25,7 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class Login extends Vue {
+    valid = false;
     form = {
         email: {
             type: 'v-text-field',
@@ -50,16 +51,16 @@ export default class Login extends Vue {
     }
 
     onLogin() {
-        const email = this.form.email.value,
+        if (this.valid) {
+            const email = this.form.email.value,
               password = this.form.password.value;
+            this.$store.dispatch('authenticate', { email, password })
+                .then(() => {
 
-        this.$store.dispatch('authenticate', { email, password })
-            .then((userCredential) => {
-                console.log('cred', userCredential);
-                if (userCredential) {
+                    // change route to dashboard
                     this.$router.push({ name: 'Overview' });
-                }
-            });
+                });
+        }        
     }
 }
 </script>

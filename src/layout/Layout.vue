@@ -15,10 +15,9 @@ import NoSideBar from './NoSideBar.vue'
     }
 })
 export default class Layout extends Vue {
-    layout: string = this.$route.meta.layout;
 
-    mounted() {
-        console.log("the layout: ", this.layout);
+    get layout() {
+        return this.$route.meta.layout || 'default';
     }
 }
 </script>

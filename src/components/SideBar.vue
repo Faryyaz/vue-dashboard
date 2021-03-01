@@ -13,8 +13,8 @@
                 </v-list-item-icon>
 
                 <v-list-item-content>
-                    <v-list-item-title>Jane Smith</v-list-item-title>
-                    <v-list-item-subtitle>Admin</v-list-item-subtitle>
+                    <v-list-item-title>{{ fullName }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ role }}</v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
         </template>
@@ -111,5 +111,15 @@ export default class SideBar extends Vue {
             ],
         },
     ];
+
+    get fullName() {
+        const user = this.$store.state.preload.user;
+        return `${user.firstName} ${user.lastName}`;
+    }
+
+    get role() {
+        const user = this.$store.state.preload.user;
+        return user.role;
+    }
 }
 </script>

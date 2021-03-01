@@ -5,8 +5,7 @@ import Overview from '../views/Overview.vue'
 import Analytics from '../views/Analytics.vue'
 import Users from '../views/Users.vue'
 import Profile from '../views/Profile.vue'
-import firebase from 'firebase/app'
-import 'firebase/auth'
+import * as fb from '../firebase'
 import store from '../store'
 
 Vue.use(VueRouter)
@@ -82,9 +81,14 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const isAuthenticated = store.state.preload.user.email !== '';
+    const currentUser = fb.auth.currentUser;
+    const userProfile = store.state.preload.user;
 
-    if (requiresAuth && !isAuthenticated) {
+    if (userProfile.email === '' && currentUser) {
+        store.dispatch('fetchUserProfile', currentUser);
+    }
+
+    if (requiresAuth && !currentUser) {
         next('/login');
     } else {
         next();
