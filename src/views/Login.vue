@@ -51,6 +51,7 @@ export default class Login extends Vue {
     }
 
     onLogin() {
+        this.$root.$emit('app-loading');
         if (this.valid) {
             const email = this.form.email.value,
               password = this.form.password.value;
@@ -59,6 +60,7 @@ export default class Login extends Vue {
 
                     // change route to dashboard
                     this.$router.push({ name: 'Overview' });
+                    this.$root.$emit('app-loaded');
                 });
         }        
     }
