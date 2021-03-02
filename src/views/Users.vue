@@ -124,6 +124,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { TUser, ERole } from '../datamodels/User';
+import * as fb from '../firebase'
 
 @Component
 export default class Users extends Vue {
@@ -172,37 +173,7 @@ export default class Users extends Vue {
         },
     ];
 
-    items: Array<TUser> = [
-        {
-            id: 1,
-            email: 'john@doe.com',
-            firstName: 'John',
-            lastName: 'Doe',
-            role: 'admin',
-        },
-        {
-            id: 2,
-            email: 'jane@smith.com',
-            firstName: 'Jane',
-            lastName: 'Smith',
-            role: 'visitor',
-        },
-        {
-            id: 3,
-            email: 'tom@hardy.com',
-            firstName: 'Tom',
-            lastName: 'Hardy',
-            role: 'visitor',
-        },
-        {
-            id: 4,
-            email: 'nicola@cage.com',
-            firstName: 'Nicola',
-            lastName: 'Cage',
-            role: 'visitor',
-        }
-    ];
-
+    items: Array<TUser> = [];
 
     editForm: { [key: string]: any } = {
         'id': {
@@ -267,6 +238,24 @@ export default class Users extends Vue {
         this.confirmDeleteIndex = null;
     }
 
+    mounted() {
+        this.loadUsers();
+    }
+
+    async loadUsers() {
+        const usersCollection = await fb.usersCollection.get();
+        usersCollection.forEach((doc) => {
+            const { email, firstName, lastName, role } = doc.data();
+            this.items.push({
+                id: doc.id,
+                email,
+                firstName,
+                lastName,
+                role
+            });
+        });
+    }
+
     /**
      * Search for a specific user
      * @param {string} value
@@ -312,7 +301,7 @@ export default class Users extends Vue {
      * edit the user and save
      */
     editUser() {
-        const id: number = this.editForm.id.value;
+        const id: string = this.editForm.id.value;
 
         //@TODO place this in axios when it is a success
         this.items.forEach((user: TUser) => {
