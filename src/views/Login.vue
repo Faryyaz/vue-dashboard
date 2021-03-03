@@ -51,16 +51,16 @@ export default class Login extends Vue {
     }
 
     onLogin() {
-        this.$root.$emit('app-loading');
+        this.$root.$emit('app-loading', true);
         if (this.valid) {
             const email = this.form.email.value,
               password = this.form.password.value;
             this.$store.dispatch('authenticate', { email, password })
                 .then(() => {
+                    this.$root.$emit('app-loading', false);
 
                     // change route to dashboard
                     this.$router.push({ name: 'Overview' });
-                    this.$root.$emit('app-loaded');
                 });
         }        
     }

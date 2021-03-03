@@ -11,8 +11,14 @@ import axios from 'axios'
 Vue.prototype.$axios = axios;
 Vue.config.productionTip = false;
 
-let app: any;
-auth.onAuthStateChanged(user => {
+Vue.mixin({
+    beforeRouteUpdate() {
+        console.log("Mixin route");
+    }
+});
+
+let app: Vue;
+auth.onAuthStateChanged(() => {
     if (!app) {
         app = new Vue({
             vuetify,

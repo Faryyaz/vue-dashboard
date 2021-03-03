@@ -18,23 +18,24 @@
                 </v-btn>
             </template>
             <v-list>
-                <v-list-item link>
-                    <!-- <v-list-item-content > -->
-                        <v-list-item-title @click.prevent="onLogout">Logout</v-list-item-title>
-                    <!-- </v-list-item-content> -->
+                <v-list-item link @click.prevent="onLogout">
+                    <v-list-item-title>Logout</v-list-item-title>
                 </v-list-item>
             </v-list>
         </v-menu>
     </v-app-bar>
 </template>
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import store from '../store';
+import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class TopBar extends Vue {
     onLogout() {
-        store.dispatch('logout').then(() => {
+        // this.$root.$emit('app-loading', true);
+        this.$store.dispatch('logout').then(() => {
+            // this.$root.$emit('app-loading', false);
+
+            // navigate back to login
             this.$router.push({ name: 'Login' });
         });
     }

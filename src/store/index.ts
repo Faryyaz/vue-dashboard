@@ -6,6 +6,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        preloadInitialized: false,
         preload: {
             user: {
                 email: '',
@@ -18,6 +19,7 @@ export default new Vuex.Store({
     mutations: {
         setUserProfile(state, user) {
             state.preload.user = user;
+            state.preloadInitialized = true;
         },
 
         unsetUserProfile(state) {
@@ -27,6 +29,7 @@ export default new Vuex.Store({
                 lastName: '',
                 role: ''
             }
+            state.preloadInitialized = false;
         }
     },
     actions: {

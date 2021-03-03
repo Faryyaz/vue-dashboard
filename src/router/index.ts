@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueRouter, { RouteConfig } from 'vue-router'
+import VueRouter, { RouteConfig, Route } from 'vue-router'
 import Account from '../views/Account.vue'
 import Overview from '../views/Overview.vue'
 import Analytics from '../views/Analytics.vue'
@@ -79,7 +79,7 @@ const router = new VueRouter({
     routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to: Route, from: Route, next: Function) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
     const currentUser = fb.auth.currentUser;
     const userProfile = store.state.preload.user;
