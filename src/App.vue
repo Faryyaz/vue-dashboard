@@ -20,6 +20,8 @@ export default class App extends Vue {
     
     created() {
 
+        this.appLoading(true);
+
         // listen for loading event
         this.$root.$on('app-loading', (value: boolean) => {
             this.appLoading(value);
@@ -31,8 +33,6 @@ export default class App extends Vue {
             },
             (value: boolean) => {
                 if (this.$route.meta.requiresAuth) {
-                    // bug here this.$route = overview when logout why?
-                    console.log('Log out', this.$route);
                     this.appLoading(!value);
                 } else {
                     this.appLoading(false);
@@ -50,9 +50,10 @@ export default class App extends Vue {
         } else {
 
             // add a small delay to make it smoother
+            // hide the loader
             setTimeout(() => {
                 this.loading = false;
-            }, 800);
+            }, 1000);
         }
     }
     

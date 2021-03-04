@@ -38,6 +38,11 @@
                                         v-if="item.role === erole.admin">
                                         {{ item.role }}
                                     </v-chip>
+                                    <v-chip small color="success" 
+                                        outlined
+                                        v-else-if="item.role === erole.staff">
+                                        {{ item.role }}
+                                    </v-chip>
                                     <v-chip small color="info" 
                                         outlined
                                         v-else-if="item.role === erole.visitor">
@@ -45,22 +50,24 @@
                                     </v-chip>
                                 </td>
                                 <td class="text-center">
-                                    <v-btn 
-                                        class="ma-2" 
-                                        icon 
-                                        color="primary"
-                                        @click="onEditUser(item)"
-                                    >
-                                        <v-icon>create</v-icon>
-                                    </v-btn>
-                                    <v-btn
-                                        class="ma-2"
-                                        icon
-                                        color="red darken-2"
-                                        @click="showDeleteConfirmation(index)"
-                                    >
-                                        <v-icon>delete</v-icon>
-                                    </v-btn>
+                                    <template v-if="currentUser.email !== item.email">
+                                        <v-btn 
+                                            class="ma-2" 
+                                            icon 
+                                            color="primary"
+                                            @click="onEditUser(item)"
+                                        >
+                                            <v-icon>create</v-icon>
+                                        </v-btn>
+                                        <v-btn
+                                            class="ma-2"
+                                            icon
+                                            color="red darken-2"
+                                            @click="showDeleteConfirmation(item.id, index)"
+                                        >
+                                            <v-icon>delete</v-icon>
+                                        </v-btn>
+                                    </template>
                                 </td>
                             </tr>
                         </template>
@@ -132,8 +139,13 @@ export default class Users extends Vue {
     deleteDialog = false;
     search = '';
     erole = ERole;
+    currentUser = this.$store.state.preload.user;
 
-    confirmDeleteIndex: number|null;
+    confirmDelete: {
+        id: string | null;
+        index: number | null;
+    };
+
     headers: Array<Record<string, any>> = [
         {
             text: 'ID',
@@ -216,13 +228,17 @@ export default class Users extends Vue {
             type: 'v-select',
             value: '',
             attr: {
-                label: 'Account Type',
+                label: 'Role',
                 name: 'role',
                 disabled: false,
                 items: [
                     {
                         text: 'Admin',
                         value: 'admin'
+                    },
+                    {
+                        text: 'Staff',
+                        value: 'staff'
                     },
                     {
                         text: 'Visitor',
@@ -235,7 +251,10 @@ export default class Users extends Vue {
 
     constructor () {
         super();
-        this.confirmDeleteIndex = null;
+        this.confirmDelete = {
+            id: null,
+            index: null
+        };
     }
 
     mounted() {
@@ -243,17 +262,31 @@ export default class Users extends Vue {
     }
 
     async loadUsers() {
-        const usersCollection = await fb.usersCollection.get();
-        usersCollection.forEach((doc) => {
-            const { email, firstName, lastName, role } = doc.data();
-            this.items.push({
-                id: doc.id,
-                email,
-                firstName,
-                lastName,
-                role
-            });
-        });
+
+        //trigger the topbar loader
+        this.$root.$emit('request-loading', true);
+
+        try {
+            const usersCollection = await fb.usersCollection.get();
+            if (usersCollection) {
+                usersCollection.forEach((doc) => {
+                    const { email, firstName, lastName, role } = doc.data();
+                    this.items.push({
+                        id: doc.id,
+                        email,
+                        firstName,
+                        lastName,
+                        role
+                    });
+                });
+
+                this.$root.$emit('request-loading', false);
+            }
+        } catch(error) {
+            if (error) {
+                this.$root.$emit('request-loading', false);
+            }
+        }        
     }
 
     /**
@@ -270,20 +303,38 @@ export default class Users extends Vue {
         );
     }
 
-    showDeleteConfirmation(index: number) {
-        this.confirmDeleteIndex = index;
+    showDeleteConfirmation(id: string, index: number) {
+        this.confirmDelete = {
+            id,
+            index
+        };
         this.deleteDialog = true;
     }
 
     /**
      * Delete a user from the table
      */
-    deleteUser() {
-        //@TODO place this in axios when it is a success
-        if (this.confirmDeleteIndex !== null) {
-            this.items.splice(this.confirmDeleteIndex, 1);
-            this.confirmDeleteIndex = null;
-            this.deleteDialog = false;
+    async deleteUser() {
+
+        //trigger the topbar loader
+        this.$root.$emit('request-loading', true);
+
+        try {
+
+            if (this.confirmDelete.id !== null) {
+                await fb.usersCollection.doc(this.confirmDelete.id).delete();
+
+                this.items.splice((this.confirmDelete.index as number), 1);
+                this.confirmDelete.index = this.confirmDelete.id = null;
+                this.deleteDialog = false;
+            }
+
+            this.$root.$emit('request-loading', false);
+            
+        } catch(error) {
+            if (error) {
+                this.$root.$emit('request-loading', false);
+            }
         }
     }
 
@@ -300,16 +351,37 @@ export default class Users extends Vue {
     /**
      * edit the user and save
      */
-    editUser() {
-        const id: string = this.editForm.id.value;
+    async editUser() {
 
-        //@TODO place this in axios when it is a success
-        this.items.forEach((user: TUser) => {
-            if (user.id === id) {
-                this.$set(user, 'role', this.editForm.role.value);
+        //trigger the topbar loader
+        this.$root.$emit('request-loading', true);
+
+        try {
+
+            const id: string = this.editForm.id.value;
+            const role: string = this.editForm.role.value;
+
+            if (id !== null) {
+                await fb.usersCollection.doc(id).update({
+                    role: role
+                });
+
+                this.items.forEach((user: TUser) => {
+                    if (user.id === id) {
+                        this.$set(user, 'role', role);
+                    }
+                });
             }
-        });
-        this.editDialog = false;
+
+            this.editDialog = false;
+            this.$root.$emit('request-loading', false);
+            
+        } catch(error) {
+            if (error) {
+                this.editDialog = false;
+                this.$root.$emit('request-loading', false);
+            }
+        }
     }
 }
 </script>

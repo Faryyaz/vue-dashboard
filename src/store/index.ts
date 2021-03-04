@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as fb from '../firebase'
+import router from 'vue-router'
 
 Vue.use(Vuex)
 
@@ -57,8 +58,6 @@ export default new Vuex.Store({
                 // firebase sign out
                 await fb.auth.signOut();
 
-                // remove the user profile state
-                commit('unsetUserProfile');
             } catch (error) {
 
                 //something wrong

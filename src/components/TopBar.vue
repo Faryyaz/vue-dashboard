@@ -1,5 +1,12 @@
 <template>
     <v-app-bar app dense elevation="1">
+        <v-progress-linear
+            v-if="loading"
+            color="secondary"
+            absolute
+            top
+            indeterminate
+        ></v-progress-linear>
         <v-app-bar-nav-icon
             @click="$emit('toggle-sidebar')"
         ></v-app-bar-nav-icon>
@@ -30,14 +37,33 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class TopBar extends Vue {
-    onLogout() {
-        // this.$root.$emit('app-loading', true);
-        this.$store.dispatch('logout').then(() => {
-            // this.$root.$emit('app-loading', false);
+    loading = false;
 
-            // navigate back to login
-            this.$router.push({ name: 'Login' });
-        });
+    mounted() {
+        this.$root.$on('request-loading', (value: boolean) => {
+            this.loading = value;
+        })
+    }
+
+    onLogout() {
+
+        // show the app loader
+        this.$root.$emit('app-loading', true);
+
+        // make it smoother
+        setTimeout(() => {
+            this.$store.dispatch('logout').then(() => {
+
+                //back to login
+                this.$router.push('/login');
+
+                // hide the app loader
+                this.$root.$emit('app-loading', false);
+
+                // remove the user profile state
+                this.$store.commit('unsetUserProfile');
+            });
+        }, 300);        
     }
 }
 </script>

@@ -8,5 +8,6 @@ export type TUser = {
 
 export enum ERole {
     admin = 'admin',
+    staff = 'staff',
     visitor = 'visitor'
 }
