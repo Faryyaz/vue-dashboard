@@ -10,6 +10,7 @@ export default new Vuex.Store({
         preloadInitialized: false,
         preload: {
             user: {
+                id: '',
                 email: '',
                 firstName: '',
                 lastName: '',
@@ -25,6 +26,7 @@ export default new Vuex.Store({
 
         unsetUserProfile(state) {
             state.preload.user = {
+                id: '',
                 email: '',
                 firstName: '',
                 lastName: '',
@@ -69,10 +71,12 @@ export default new Vuex.Store({
             try {
                 // fetch user profile
                 const userProfile = await fb.usersCollection.doc(user.uid).get();
-
+                const uid = { id: user.uid };
+                let userData = {}
                 if (userProfile) {
+                    userData = { ...uid, ...userProfile.data()}
                     // set user profile in state
-                    commit('setUserProfile', userProfile.data());
+                    commit('setUserProfile', userData);
                 }
             } catch (error) {
 
