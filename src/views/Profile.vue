@@ -10,6 +10,7 @@
                             :prepend-icon="field.icon"
                             :key="field.attr.name" 
                             :is="field.type"
+                            @blur="passwordConfirmationRule(field.attr.name)"
                             v-model="field.value"
                             v-bind="field.attr">
                         </component>
@@ -21,7 +22,7 @@
                         color="primary" 
                         block 
                         depressed
-                        :disabled="!valid"
+                        :disabled="!valid || !profileIsUpdated"
                         x-large>
                         Update
                     </v-btn>
@@ -81,11 +82,16 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import * as fb from '../firebase'
 import { ERole } from '../datamodels/User'
+import * as _ from 'lodash'
+import { ValidationRules } from '../utils'
 
 @Component
 export default class Profile extends Vue {
     valid = false;
     erole = ERole;
+    validationRules = new ValidationRules();
+    updatedProfile: any = {};
+
     form = {
         email: {
             type: 'v-text-field',
@@ -95,7 +101,8 @@ export default class Profile extends Vue {
             attr: {
                 label: 'Email',
                 name: 'email',
-                required: true
+                required: true,
+                rules: [this.validationRules.required, this.validationRules.email]
             }
         },
         firstName: {
@@ -106,7 +113,8 @@ export default class Profile extends Vue {
             attr: {
                 label: 'First name',
                 name: 'firstName',
-                required: true
+                required: true,
+                rules: [this.validationRules.required]
             }
         },
         lastName: {
@@ -117,7 +125,8 @@ export default class Profile extends Vue {
             attr: {
                 label: 'Last name',
                 name: 'lastName',
-                required: true
+                required: true,
+                rules: [this.validationRules.required]
             }
         },
         role: {
@@ -129,6 +138,7 @@ export default class Profile extends Vue {
                 label: 'Role',
                 name: 'role',
                 required: true,
+                rules: [this.validationRules.required],
                 items: [
                     { text: 'Admin', value: 'admin' },
                     { text: 'Staff', value: 'staff' },
@@ -142,37 +152,48 @@ export default class Profile extends Vue {
             attr: {
                 label: 'Change password'
             }
-        },
-        password: {
-            type: 'v-text-field',
-            value: '',
-            icon: 'lock',
-            attr: {
-                type: 'password',
-                label: 'Password',
-                name: 'password',
-                disabled: true,
-                required: true
-            }
-        },
-        confirmPassword: {
-            type: 'v-text-field',
-            value: '',
-            icon: 'lock',
-            attr: {
-                type: 'password',
-                label: 'Confirm password',
-                name: 'confirmPassword',
-                disabled: true,
-                required: true
-            }
         }
     }
 
-    @Watch('form.changePassword.value')
+    @Watch('form.changePassword.value', { immediate: true })
     onChangePassword(value: boolean) {
-        this.form.password.attr.disabled = !value;
-        this.form.confirmPassword.attr.disabled = !value;
+
+        if (value) {
+            this.$set(this.form, 'password', {
+                type: 'v-text-field',
+                value: '',
+                icon: 'lock',
+                attr: {
+                    type: 'password',
+                    label: 'Password',
+                    name: 'password',
+                    disabled: false,
+                    required: true,
+                    rules: [this.validationRules.required]
+                }
+            });
+
+            this.$set(this.form, 'confirmPassword', {
+                type: 'v-text-field',
+                value: '',
+                icon: 'lock',
+                attr: {
+                    type: 'password',
+                    label: 'Confirm password',
+                    name: 'confirmPassword',
+                    disabled: false,
+                    required: true,
+                    error: false,
+                    rules: [this.validationRules.required]
+                }
+            });
+        } else {
+            if (Object.prototype.hasOwnProperty.call(this.form, 'password') && 
+                Object.prototype.hasOwnProperty.call(this.form, 'confirmPassword')) {
+                delete (this.form as any)['password'];
+                delete (this.form as any)['confirmPassword'];
+            }
+        }
     }
 
     @Watch('$store.state.preload.user', { immediate: true, deep: true })
@@ -187,32 +208,86 @@ export default class Profile extends Vue {
         }
     }
 
+    @Watch('form', { immediate: true, deep: true })
+    onFormValueChanged(form: any) {
+        for(const property in form) {
+            const formField = (form as any)[property];
+            if (formField.isUserProfile && formField.value !== this.userProfileData[property]) {
+                this.$set(this.updatedProfile, property, formField.value);
+            } else {
+                delete this.updatedProfile[property];
+            }
+        }
+    }
+
+    get profileIsUpdated() {
+        return !_.isEmpty(this.updatedProfile);
+    }
+
     get userProfileData() {
         return this.$store.state.preload.user;
     }
 
-    // @TODO update auth email and password
-    async updateProfile() {
-        if (this.valid) {
-            const updatedProfile: any = {};
-            const uid = this.userProfileData.id;
-
-            //trigger the topbar loader
-            this.$root.$emit('request-loading', true);
-
-            for(const property in this.form) {
-                const formField = (this.form as any)[property];
-                if (formField.isUserProfile) {
-                    updatedProfile[property] = formField.value;
+    /**
+     * Check if password matches
+     */
+    passwordConfirmationRule(fieldName: string): void {
+        if (fieldName === 'password' || fieldName ===  'confirmPassword') {
+            if ((this.form as any)['confirmPassword'].value !== '') {
+                if ((this.form as any)['password'].value === (this.form as any)['confirmPassword'].value) {
+                    this.$set((this.form as any)['confirmPassword'].attr, 'error', false);
+                    this.$set((this.form as any)['confirmPassword'].attr, 'errorMessages', '');
+                } else {
+                    this.$set((this.form as any)['confirmPassword'].attr, 'error', true);
+                    this.$set((this.form as any)['confirmPassword'].attr, 'errorMessages', 'Password must match');
                 }
             }
+        }
+    }
 
-            await fb.usersCollection.doc(uid).update(updatedProfile);
+    //@TODO check this; update password not working correctly
+    // must be login recently for it to work
+    async updateProfile() {
 
-            this.$store.commit('setUserProfile', { id: uid, ...updatedProfile });
+        try {
+            if (this.valid) {
+                
+                const uid = this.userProfileData.id;
+
+                if (!_.isEmpty(this.updatedProfile)) {
+
+                    //trigger the topbar loader
+                    this.$root.$emit('request-loading', true);
+
+                    await fb.usersCollection.doc(uid).update(this.updatedProfile);
+
+                    console.log(this.updatedProfile);
+
+                    this.$store.commit('setUserProfile', { id: uid, ...this.updatedProfile });
+                }
+
+                if (this.form.email.value !== this.userProfileData.email) {
+                    await fb.auth.currentUser?.updateEmail(this.form.email.value);
+                }
+
+                if (this.form.changePassword.value && (this.form as any)['password'].value !== '') {
+                    await fb.auth.currentUser?.updatePassword((this.form as any)['password'].value);
+                }
+
+                // reset
+                this.updatedProfile = {};
+
+                // hide the loader
+                this.$root.$emit('request-loading', false);
             
-            // hide the loader
-            this.$root.$emit('request-loading', false);
+            } 
+        } catch (error) {
+            if (error) {
+                // hide the loader
+                this.$root.$emit('request-loading', false);
+
+                console.log(error);
+            }
         }
     }
 }

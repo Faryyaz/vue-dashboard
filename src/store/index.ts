@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as fb from '../firebase'
-import router from 'vue-router'
 
 Vue.use(Vuex)
 
@@ -20,7 +19,11 @@ export default new Vuex.Store({
     },
     mutations: {
         setUserProfile(state, user) {
-            state.preload.user = user;
+            for(const property in state.preload.user) {
+                if (user[property] !== '' && user[property] !== undefined) {
+                    (state.preload.user as any)[property] = user[property];
+                }
+            }
             state.preloadInitialized = true;
         },
 
