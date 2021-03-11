@@ -330,10 +330,12 @@ export default class Users extends Vue {
             }
 
             this.$root.$emit('request-loading', false);
+            this.$root.$emit('successful-notification');
             
         } catch(error) {
             if (error) {
                 this.$root.$emit('request-loading', false);
+                this.$root.$emit('failed-notification', error.message);
             }
         }
     }
@@ -375,11 +377,13 @@ export default class Users extends Vue {
 
             this.editDialog = false;
             this.$root.$emit('request-loading', false);
+            this.$root.$emit('successful-notification');
             
         } catch(error) {
             if (error) {
                 this.editDialog = false;
                 this.$root.$emit('request-loading', false);
+                this.$root.$emit('failed-notification', error.message);
             }
         }
     }

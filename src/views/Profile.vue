@@ -85,7 +85,6 @@ import firebase from 'firebase/app'
 import { ERole } from '../datamodels/User'
 import * as _ from 'lodash'
 import { ValidationRules } from '../utils'
-import { prototype } from 'vue/types/umd'
 
 @Component
 export default class Profile extends Vue {
@@ -326,14 +325,14 @@ export default class Profile extends Vue {
 
                 // hide the loader
                 this.$root.$emit('request-loading', false);
+                this.$root.$emit('successful-notification');
             
             } 
         } catch (error) {
             if (error) {
                 // hide the loader
                 this.$root.$emit('request-loading', false);
-
-                console.log(error);
+                this.$root.$emit('failed-notification', error.message);
             }
         }
     }

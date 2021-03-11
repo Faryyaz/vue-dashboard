@@ -12,14 +12,14 @@
     </main>
 </template>
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import SideBar from "../components/SideBar.vue";
-import TopBar from "../components/TopBar.vue";
+import { Component, Vue } from 'vue-property-decorator'
+import SideBar from '../components/SideBar.vue'
+import TopBar from '../components/TopBar.vue'
 
 @Component({
     components: {
         SideBar,
-        TopBar,
+        TopBar
     },
 })
 export default class Default extends Vue {

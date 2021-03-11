@@ -2,17 +2,20 @@
     <v-app>
         <app-loader :loading="loading"></app-loader>
         <layout></layout>
+        <notifier></notifier>
     </v-app>
 </template>
 <script lang="ts">
 import { Component, Watch, Vue } from 'vue-property-decorator'
 import Layout from './layout/Layout.vue'
 import AppLoader from './components/AppLoader.vue'
+import Notifier from './components/Notifier.vue'
 
 @Component({
     components: {
         Layout,
         AppLoader,
+        Notifier
     },
 })
 export default class App extends Vue {

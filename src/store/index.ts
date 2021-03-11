@@ -38,10 +38,16 @@ export default new Vuex.Store({
             state.preloadInitialized = false;
         }
     },
+    getters: {
+        vue(state) {
+            console.log("this instance", state);
+          return null;
+        }
+    },
     actions: {
         async authenticate({
             dispatch
-        }, { email, password }: { email: string; password: string }) {
+        }, { email, password, vm }: { email: string; password: string; vm: Vue }) {
             try {
                 // sign user in
                 const { user } = await fb.auth.signInWithEmailAndPassword(email, password);
@@ -51,13 +57,18 @@ export default new Vuex.Store({
                     dispatch('fetchUserProfile', user)
                 }
             } catch (error) {
-
-                //something wrong
-                console.error(error);
+                if (error) {
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                        const errorMessage = 'The email or password is incorrect. Please try again.';
+                        vm.$root.$emit('failed-notification', errorMessage);
+                    } else {
+                        vm.$root.$emit('failed-notification', error.message);
+                    }
+                }
             }
         },
 
-        async logout({ commit }) {
+        async logout() {
             try {
 
                 // firebase sign out

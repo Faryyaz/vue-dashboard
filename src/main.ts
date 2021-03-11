@@ -28,3 +28,12 @@ auth.onAuthStateChanged(() => {
         }).$mount('#app')
     }
 });
+
+// const app = new Vue({
+//     vuetify,
+//     router,
+//     store,
+//     render: h => h(App)
+// }).$mount('#app')
+
+// export default app;
