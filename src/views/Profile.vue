@@ -1,7 +1,7 @@
 <template>
 <v-layout wrap>
     <v-flex lg6 class="pa-1">
-        <v-form @submit.prevent="updateProfile" v-model="valid">
+        <v-form ref="profileForm" @submit.prevent="updateProfile" v-model="valid">
             <v-card>
                 <v-card-title>Manage User Profile</v-card-title>
                 <v-card-text>
@@ -10,7 +10,7 @@
                             :prepend-icon="field.icon"
                             :key="field.attr.name" 
                             :is="field.type"
-                            @blur="passwordConfirmationRule(field.attr.name)"
+                            @input="passwordConfirmationRule(field.attr.name)"
                             v-model="field.value"
                             v-bind="field.attr">
                         </component>
@@ -22,7 +22,7 @@
                         color="primary" 
                         block 
                         depressed
-                        :disabled="!valid || !profileIsUpdated"
+                        :disabled="!isValid"
                         x-large>
                         Update
                     </v-btn>
@@ -81,9 +81,11 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import * as fb from '../firebase'
+import firebase from 'firebase/app'
 import { ERole } from '../datamodels/User'
 import * as _ from 'lodash'
 import { ValidationRules } from '../utils'
+import { prototype } from 'vue/types/umd'
 
 @Component
 export default class Profile extends Vue {
@@ -152,48 +154,68 @@ export default class Profile extends Vue {
             attr: {
                 label: 'Change password'
             }
+        },
+        oldPassword: {
+            type: 'v-text-field',
+            value: '',
+            icon: 'lock',
+            attr: {
+                type: 'password',
+                label: 'Old password',
+                name: 'oldPassword',
+                disabled: true,
+                required: true,
+                rules: []
+            }
+        },
+        password: {
+            type: 'v-text-field',
+            value: '',
+            icon: 'lock',
+            attr: {
+                type: 'password',
+                label: 'Password',
+                name: 'password',
+                disabled: true,
+                required: true,
+                rules: []
+            }
+        },
+        confirmPassword: {
+            type: 'v-text-field',
+            value: '',
+            icon: 'lock',
+            attr: {
+                type: 'password',
+                label: 'Confirm password',
+                name: 'confirmPassword',
+                disabled: true,
+                required: true,
+                error: false,
+                rules: []
+            }
         }
     }
 
-    @Watch('form.changePassword.value', { immediate: true })
+    @Watch('form.changePassword.value', { immediate: false })
     onChangePassword(value: boolean) {
 
-        if (value) {
-            this.$set(this.form, 'password', {
-                type: 'v-text-field',
-                value: '',
-                icon: 'lock',
-                attr: {
-                    type: 'password',
-                    label: 'Password',
-                    name: 'password',
-                    disabled: false,
-                    required: true,
-                    rules: [this.validationRules.required]
-                }
-            });
+        this.$set(this.form.oldPassword.attr, 'disabled', !value);
+        this.$set(this.form.password.attr, 'disabled', !value);
+        this.$set(this.form.confirmPassword.attr, 'disabled', !value);
 
-            this.$set(this.form, 'confirmPassword', {
-                type: 'v-text-field',
-                value: '',
-                icon: 'lock',
-                attr: {
-                    type: 'password',
-                    label: 'Confirm password',
-                    name: 'confirmPassword',
-                    disabled: false,
-                    required: true,
-                    error: false,
-                    rules: [this.validationRules.required]
-                }
-            });
+        if (value) {
+            this.$set(this.form.oldPassword.attr, 'rules', [this.validationRules.required]);
+            this.$set(this.form.password.attr, 'rules', [this.validationRules.required]);
+            this.$set(this.form.confirmPassword.attr, 'rules', [this.validationRules.required]);
         } else {
-            if (Object.prototype.hasOwnProperty.call(this.form, 'password') && 
-                Object.prototype.hasOwnProperty.call(this.form, 'confirmPassword')) {
-                delete (this.form as any)['password'];
-                delete (this.form as any)['confirmPassword'];
-            }
+            this.$set(this.form.oldPassword.attr, 'rules', []);
+            this.$set(this.form.password.attr, 'rules', []);
+            this.$set(this.form.confirmPassword.attr, 'rules', []);
         }
+
+        //reset the validation
+        (this.$refs.profileForm as Vue & { resetValidation: () => void }).resetValidation();
     }
 
     @Watch('$store.state.preload.user', { immediate: true, deep: true })
@@ -215,7 +237,9 @@ export default class Profile extends Vue {
             if (formField.isUserProfile && formField.value !== this.userProfileData[property]) {
                 this.$set(this.updatedProfile, property, formField.value);
             } else {
-                delete this.updatedProfile[property];
+                if (Object.prototype.hasOwnProperty.call(this.updatedProfile, property)) {
+                    this.$delete(this.updatedProfile, property);
+                }
             }
         }
     }
@@ -226,6 +250,22 @@ export default class Profile extends Vue {
 
     get userProfileData() {
         return this.$store.state.preload.user;
+    }
+
+    get isValid() {
+        let $valid = false;
+        const passwordChange = this.form.changePassword.value;
+
+        if (this.valid && this.profileIsUpdated && passwordChange) {
+            $valid = true;
+        } else if (this.valid && !this.profileIsUpdated && passwordChange) {
+            $valid = true;
+        } else if (this.valid && this.profileIsUpdated && !passwordChange) {
+            $valid = true;
+        } else {
+            $valid = false;
+        }
+        return $valid;
     }
 
     /**
@@ -261,8 +301,6 @@ export default class Profile extends Vue {
 
                     await fb.usersCollection.doc(uid).update(this.updatedProfile);
 
-                    console.log(this.updatedProfile);
-
                     this.$store.commit('setUserProfile', { id: uid, ...this.updatedProfile });
                 }
 
@@ -271,6 +309,15 @@ export default class Profile extends Vue {
                 }
 
                 if (this.form.changePassword.value && (this.form as any)['password'].value !== '') {
+
+                    const user = fb.auth.currentUser;
+                    const credentials = firebase.auth.EmailAuthProvider.credential(
+                        this.form.email.value,
+                        this.form.oldPassword.value
+                    );
+                    
+                    await user?.reauthenticateWithCredential(credentials);
+
                     await fb.auth.currentUser?.updatePassword((this.form as any)['password'].value);
                 }
 
