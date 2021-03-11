@@ -1,6 +1,6 @@
 <template>
 <v-layout wrap>
-    <v-flex class="pa-1">
+    <v-flex lg6 class="pa-1">
         <v-form @submit.prevent="updateProfile" v-model="valid">
             <v-card>
                 <v-card-title>Manage User Profile</v-card-title>

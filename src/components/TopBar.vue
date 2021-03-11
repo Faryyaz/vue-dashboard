@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar app dense elevation="1">
+    <v-app-bar color="white" app dense elevation="1">
         <v-progress-linear
             v-if="loading"
             color="secondary"
