@@ -20,58 +20,63 @@
         </template>
         <v-list>
             <template v-for="item in items">
-                <template v-if="item.hasOwnProperty('to')">
-                    <v-list-item
-                        :key="item.title"
-                        :to="{ name: item.to }"
-                    >
-                        <v-list-item-icon>
-                            <v-icon>{{ item.icon }}</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-content>
-                            <v-list-item-title 
-                                v-text="item.title">
-                            </v-list-item-title>
-                        </v-list-item-content>
-                    </v-list-item>
-                </template>
-                <template v-else>
-                    <v-list-group
-                        :key="item.title"
-                        v-model="item.active"
-                        :prepend-icon="item.icon"
-                        no-action
-                        color="white"
-                    >
-                        <template v-slot:activator>
-                            <v-list-item-content>
-                                <v-list-item-title
-                                    :key="item.title"
-                                    v-text="item.title"
-                                ></v-list-item-title>
-                            </v-list-item-content>
-                        </template>
-
+                <template v-if="item.permissions.includes(role)">
+                    <template v-if="item.hasOwnProperty('to')">
                         <v-list-item
-                            color="white"
-                            v-for="child in item.items"
-                            :key="child.title"
-                            :to="{ name: child.to }"
+                            :key="item.title"
+                            :to="{ name: item.to }"
                         >
+                            <v-list-item-icon>
+                                <v-icon>{{ item.icon }}</v-icon>
+                            </v-list-item-icon>
                             <v-list-item-content>
-                                <v-list-item-title
-                                    v-text="child.title"
-                                ></v-list-item-title>
+                                <v-list-item-title 
+                                    v-text="item.title">
+                                </v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
-                    </v-list-group>
+                    </template>
+                    <template v-else>
+                        <v-list-group
+                            :key="item.title"
+                            v-model="item.active"
+                            :prepend-icon="item.icon"
+                            no-action
+                            color="white"
+                        >
+                            <template v-slot:activator>
+                                <v-list-item-content>
+                                    <v-list-item-title
+                                        :key="item.title"
+                                        v-text="item.title"
+                                    ></v-list-item-title>
+                                </v-list-item-content>
+                            </template>
+
+                            <template v-for="child in item.items">
+                                <template v-if="child.permissions.includes(role)">
+                                    <v-list-item
+                                        color="white"
+                                        :key="child.title"
+                                        :to="{ name: child.to }">
+                                        <v-list-item-content>
+                                            <v-list-item-title
+                                                v-text="child.title"
+                                            ></v-list-item-title>
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                </template>
+                            </template>
+                        </v-list-group>
+                    </template>
                 </template>
             </template>
         </v-list>
     </v-navigation-drawer>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { ERole } from '../datamodels/User'
 
 @Component
 export default class SideBar extends Vue {
@@ -87,17 +92,21 @@ export default class SideBar extends Vue {
                 {
                     title: "Overview",
                     to: "Overview",
+                    permissions: [ ERole.admin, ERole.staff, ERole.visitor ]
                 },
                 {
                     title: "Analytics",
                     to: "Analytics",
+                    permissions: [ ERole.admin, ERole.staff ]
                 },
             ],
+            permissions: [ ERole.admin, ERole.staff, ERole.visitor ]
         },
         {
             title: "Profile",
             icon: "account_box",
             to: "Profile",
+            permissions: [ ERole.admin, ERole.staff, ERole.visitor ]
         },
         {
             title: "Admin",
@@ -107,8 +116,17 @@ export default class SideBar extends Vue {
                 {
                     title: "Users",
                     to: "Users",
+                    icon: "gavel",
+                    permissions: [ ERole.admin ]
                 },
             ],
+            permissions: [ ERole.admin ]
+        },
+        {
+            title: "About",
+            icon: "help",
+            to: "About",
+            permissions: [ ERole.admin, ERole.staff, ERole.visitor ]
         },
     ];
 

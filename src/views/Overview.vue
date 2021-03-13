@@ -147,7 +147,7 @@ export default class Overview extends Vue {
 
             if (globalStatsCollection) {
                 globalStatsCollection.forEach((doc) => {
-                    const { date, type, value } = doc.data();
+                    const { type, value } = doc.data();
                     this.$set((this.overviewBoxStats as any)[type].stat, 'value', value);
                 });
 

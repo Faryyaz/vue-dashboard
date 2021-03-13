@@ -5,8 +5,10 @@ import Overview from '../views/Overview.vue'
 import Analytics from '../views/Analytics.vue'
 import Users from '../views/Users.vue'
 import Profile from '../views/Profile.vue'
+import About from '../views/About.vue'
 import * as fb from '../firebase'
 import store from '../store'
+import { ERole } from '../datamodels/User'
 
 Vue.use(VueRouter)
 
@@ -51,6 +53,13 @@ const routes: Array<RouteConfig> = [
             layout: 'default',
             requiresAuth: true
         },
+        beforeEnter: (to: Route, from: Route, next: Function) => {
+
+            const role = store.state.preload.user.role;
+            if (role === ERole.admin || role === ERole.staff) {
+                next();
+            }
+        },
         component: Analytics
     },
     {
@@ -59,6 +68,13 @@ const routes: Array<RouteConfig> = [
         meta: {
             layout: 'default',
             requiresAuth: true
+        },
+        beforeEnter: (to: Route, from: Route, next: Function) => {
+
+            const role = store.state.preload.user.role;
+            if (role === ERole.admin) {
+                next();
+            }
         },
         component: Users
     },
@@ -70,6 +86,15 @@ const routes: Array<RouteConfig> = [
             requiresAuth: true
         },
         component: Profile
+    },
+    {
+        path: '/about',
+        name: 'About',
+        meta: {
+            layout: 'default',
+            requiresAuth: true
+        },
+        component: About
     }
 ]
 
