@@ -38,12 +38,6 @@ export default new Vuex.Store({
             state.preloadInitialized = false;
         }
     },
-    getters: {
-        vue(state) {
-            console.log("this instance", state);
-          return null;
-        }
-    },
     actions: {
         async authenticate({
             dispatch

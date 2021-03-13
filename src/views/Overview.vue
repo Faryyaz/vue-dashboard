@@ -197,7 +197,7 @@ export default class Overview extends Vue {
 
                     //date manipulation
                     unixTimeStamp = new Date(date.seconds * 1000);
-                    day = unixTimeStamp.getDay();
+                    day = unixTimeStamp.getDate();
                     month = unixTimeStamp.toLocaleString('default', { month: 'short' });
                     monthLong = unixTimeStamp.toLocaleString('default', { month: 'long' });
                     year = unixTimeStamp.getFullYear();
