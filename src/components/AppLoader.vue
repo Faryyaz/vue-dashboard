@@ -33,7 +33,7 @@ export default class AppLoader extends Vue {
     loading!: boolean;
 }
 </script>
-<style lang="css">
+<style lang="scss">
     .app-loader {
         background-color: #f1f1f1;
         width: 100%;
@@ -42,7 +42,7 @@ export default class AppLoader extends Vue {
         position: absolute;
     }
 </style>
-<style lang="css" scoped>
+<style lang="scss" scoped>
     .fade-enter-active, .fade-leave-active {
         transition: opacity 0.25s ease-in;
     }

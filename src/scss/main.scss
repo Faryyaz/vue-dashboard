@@ -1,3 +1,8 @@
 .v-application {
     background-color: var(--v-background-base) !important;
 }
+
+.v-sheet--offset {
+    top: -24px;
+    position: relative;
+}

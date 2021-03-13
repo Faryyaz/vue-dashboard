@@ -5,6 +5,7 @@ import router from './router'
 import store from './store'
 import './scss/main.scss'
 import { auth } from './firebase'
+import './filters'
 
 import axios from 'axios'
 
@@ -28,12 +29,3 @@ auth.onAuthStateChanged(() => {
         }).$mount('#app')
     }
 });
-
-// const app = new Vue({
-//     vuetify,
-//     router,
-//     store,
-//     render: h => h(App)
-// }).$mount('#app')
-
-// export default app;

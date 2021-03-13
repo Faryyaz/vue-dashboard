@@ -21,9 +21,17 @@ const auth = firebase.auth();
 
 // collection references
 const usersCollection = db.collection('users');
+const globalStatsCollection = db.collection('globalStats');
+const casesStatsCollection = db.collection('casesStats');
+const deathsStatsCollection = db.collection('deathsStats');
+const recoveredStatsCollection = db.collection('recoveredStats');
 
 export {
     db,
     auth,
-    usersCollection
+    usersCollection,
+    globalStatsCollection,
+    casesStatsCollection,
+    deathsStatsCollection,
+    recoveredStatsCollection
 }

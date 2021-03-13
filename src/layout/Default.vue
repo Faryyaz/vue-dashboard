@@ -30,7 +30,7 @@ export default class Default extends Vue {
     }
 }
 </script>
-<style lang="css">
+<style lang="scss">
 .fade-enter-active,
 .fade-leave-active {
     transition-duration: 0.3s;
