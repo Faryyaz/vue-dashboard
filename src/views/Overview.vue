@@ -18,20 +18,40 @@
             <v-col cols="12" sm="12">
                 <v-data-table
                     :headers="headers"
-                    :items="desserts"
-                    :items-per-page="4"
+                    :items="tableStats"
+                    :options.sync="options"
+                    :server-items-length="serverItemsLength"
                     :footer-props="footerProps"
-                    class="elevation-1"
-                ></v-data-table>
+                    class="elevation-1">
+                    <template v-slot:item="{ item }">
+                        <tr>
+                            <td class="text-capitalize">{{ item.country }}</td>
+                            <td>{{ item.cases }}</td>
+                            <td>{{ item.recovered }}</td>
+                            <td>{{ item.critical }}</td>
+                            <td>{{ item.deaths }}</td>
+                            <td>{{ item.population|formatNumber() }}</td>
+                        </tr>
+                    </template>
+                </v-data-table>
             </v-col>
         </v-row>
     </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import StatsBox from '../components/StatsBox.vue'
 import OverviewGraph from '../components/OverviewGraph.vue'
 import * as fb from '../firebase'
+
+type TTableStats = { 
+    country: string; 
+    cases: number;
+    recovered: number;
+    critical: number;
+    deaths: number;
+    population: number;
+}
 
 @Component({
     components: {
@@ -116,19 +136,77 @@ export default class Overview extends Vue {
                 value: [ 0, 0 ]
             }
         }
+    };
+
+    headers = [
+        {
+            text: 'Country',
+            align: 'start',
+            sortable: true,
+            value: 'country'
+        },
+        { 
+            text: 'Cases', 
+            value: 'cases'
+        },
+        { 
+            text: 'Recovered', 
+            value: 'recovered'
+        },
+        { 
+            text: 'Critical', 
+            value: 'critical'
+        },
+        { 
+            text: 'Deaths', 
+            value: 'deaths'
+        },
+        { 
+            text: 'Population', 
+            value: 'population'
+        }
+    ];
+
+    tableStats: Array<TTableStats> = [];
+
+    options = {
+        itemsPerPage: 4
+    };
+
+    footerProps = {
+        'items-per-page-options': [4, 16, -1]
+    };
+
+    serverItemsLength = 0;
+
+    @Watch('options', { immediate: true, deep: true })
+    onOptionsChanged(options: any) {
+        const { itemsPerPage, page } = options;
+        let start = 0,
+            limit = itemsPerPage;
+
+        if (page > 1) {
+            start = ((page - 1) * itemsPerPage) + 1;
+        }
+
+        if (itemsPerPage < 0) {
+            limit = Infinity;
+        }
+
+        this.fetchCountryStats(start, limit);
     }
 
     mounted() {
-        this.getGlobalStats();
-        this.getChartStats('casesStatsCollection', 'cases');
-        this.getChartStats('deathsStatsCollection', 'deaths');
-        this.getChartStats('recoveredStatsCollection', 'recovered');
+        this.fetchGlobalStats();
+        this.fetchChartStats('casesStatsCollection', 'cases');
+        this.fetchChartStats('deathsStatsCollection', 'deaths');
+        this.fetchChartStats('recoveredStatsCollection', 'recovered');
     }
 
     /**
      * get the global stats for the overview stats box
      */
-    async getGlobalStats() {
+    async fetchGlobalStats() {
         
         //trigger the topbar loader
         this.$root.$emit('request-loading', true);
@@ -165,7 +243,7 @@ export default class Overview extends Vue {
      * @param {string} collection, the db collection name
      * @param {string} chart,  the chart's name
      */
-    async getChartStats(collection: string, chart: string) {
+    async fetchChartStats(collection: string, chart: string) {
 
         //trigger the topbar loader
         this.$root.$emit('request-loading', true);
@@ -221,105 +299,56 @@ export default class Overview extends Vue {
         }
     }
 
-    headers = [
-        {
-            text: 'Dessert (100g serving)',
-            align: 'start',
-            sortable: false,
-            value: 'name',
-        },
-        { text: 'Calories', value: 'calories' },
-        { text: 'Fat (g)', value: 'fat' },
-        { text: 'Carbs (g)', value: 'carbs' },
-        { text: 'Protein (g)', value: 'protein' },
-        { text: 'Iron (%)', value: 'iron' },
-    ];
+    /**
+     * Get country stats
+     * @param {number} start the starting index
+     * @param {number} limit the amount of rows to be fetched at once
+     */
+    async fetchCountryStats(start: number, limit: number) {
 
-    desserts = [
-        {
-            name: 'Frozen Yogurt',
-            calories: 159,
-            fat: 6.0,
-            carbs: 24,
-            protein: 4.0,
-            iron: '1%',
-        },
-        {
-            name: 'Ice cream sandwich',
-            calories: 237,
-            fat: 9.0,
-            carbs: 37,
-            protein: 4.3,
-            iron: '1%',
-        },
-        {
-            name: 'Eclair',
-            calories: 262,
-            fat: 16.0,
-            carbs: 23,
-            protein: 6.0,
-            iron: '7%',
-        },
-        {
-            name: 'Cupcake',
-            calories: 305,
-            fat: 3.7,
-            carbs: 67,
-            protein: 4.3,
-            iron: '8%',
-        },
-        {
-            name: 'Gingerbread',
-            calories: 356,
-            fat: 16.0,
-            carbs: 49,
-            protein: 3.9,
-            iron: '16%',
-        },
-        {
-            name: 'Jelly bean',
-            calories: 375,
-            fat: 0.0,
-            carbs: 94,
-            protein: 0.0,
-            iron: '0%',
-        },
-        {
-            name: 'Lollipop',
-            calories: 392,
-            fat: 0.2,
-            carbs: 98,
-            protein: 0,
-            iron: '2%',
-        },
-        {
-            name: 'Honeycomb',
-            calories: 408,
-            fat: 3.2,
-            carbs: 87,
-            protein: 6.5,
-            iron: '45%',
-        },
-        {
-            name: 'Donut',
-            calories: 452,
-            fat: 25.0,
-            carbs: 51,
-            protein: 4.9,
-            iron: '22%',
-        },
-        {
-            name: 'KitKat',
-            calories: 518,
-            fat: 26.0,
-            carbs: 65,
-            protein: 7,
-            iron: '6%',
-        },
-    ];
+        //trigger the topbar loader
+        this.$root.$emit('request-loading', true);
 
-    footerProps = {
-        'items-per-page-options': [4, 16, -1]
+        console.log(start, limit);
+
+        try {
+
+            const countryStatsCollection = await fb.countryStatsCollection.where('index', '>=', start).limit(limit).get();
+
+            /**
+             * Not efficient when there is a lot of doc (doc > 1000)
+             * But for now it will work without issue
+             * The proper way would be to create some kind of trigger when data is added to
+             * the doc, then increment the count and store it on firebase, some kind of meta
+             * data about the doc
+             */
+            if (this.serverItemsLength === 0) {
+                this.serverItemsLength = (await fb.countryStatsCollection.get()).docs.length;
+            }
+
+            this.tableStats = [];
+
+            if (countryStatsCollection) {
+                countryStatsCollection.forEach((doc) => {
+                    const { country, cases, recovered, critical, deaths, population } = doc.data();
+                    this.tableStats.push({
+                        country,
+                        cases,
+                        recovered,
+                        critical,
+                        deaths,
+                        population
+                    });
+                });
+            }
+
+            this.$root.$emit('request-loading', false);
+
+        } catch (error) {
+            if (error) {
+                this.$root.$emit('request-loading', false);
+            }
+        }
     }
 }
 </script>

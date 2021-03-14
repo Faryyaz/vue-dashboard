@@ -25,6 +25,7 @@ const globalStatsCollection = db.collection('globalStats');
 const casesStatsCollection = db.collection('casesStats');
 const deathsStatsCollection = db.collection('deathsStats');
 const recoveredStatsCollection = db.collection('recoveredStats');
+const countryStatsCollection = db.collection('countryStats');
 
 export {
     db,
@@ -33,5 +34,6 @@ export {
     globalStatsCollection,
     casesStatsCollection,
     deathsStatsCollection,
-    recoveredStatsCollection
+    recoveredStatsCollection,
+    countryStatsCollection
 }
