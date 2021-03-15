@@ -35,71 +35,82 @@ const routes: Array<RouteConfig> = [
     },
     {
         path: '/',
-        name: 'Overview',
+        name: 'Dashboard',
+        redirect: '/overview',
         meta: {
             layout: 'default',
             requiresAuth: true
         },
-        component: Overview
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        // component: () => import(/* webpackChunkName: "about" */ '../views/Dashboard.vue')
-    },
-    {
-        path: '/analytics',
-        name: 'Analytics',
-        meta: {
-            layout: 'default',
-            requiresAuth: true
-        },
-        beforeEnter: (to: Route, from: Route, next: Function) => {
-
-            const role = store.state.preload.user.role;
-            if (role === ERole.admin || role === ERole.staff) {
-                next();
+        component: { template: '<router-view></router-view>' },
+        children: [
+            {
+                path: '/overview',
+                name: 'Overview',
+                meta: {
+                    layout: 'default',
+                    requiresAuth: true
+                },
+                component: Overview
+                // route level code-splitting
+                // this generates a separate chunk (about.[hash].js) for this route
+                // which is lazy-loaded when the route is visited.
+                // component: () => import(/* webpackChunkName: "about" */ '../views/Dashboard.vue')
+            },
+            {
+                path: '/analytics',
+                name: 'Analytics',
+                meta: {
+                    layout: 'default',
+                    requiresAuth: true
+                },
+                beforeEnter: (to: Route, from: Route, next: Function) => {
+        
+                    const role = store.state.preload.user.role;
+                    if (role === ERole.admin || role === ERole.staff) {
+                        next();
+                    }
+                },
+                component: Analytics
+            },
+            {
+                path: '/users',
+                name: 'Users',
+                meta: {
+                    layout: 'default',
+                    requiresAuth: true
+                },
+                beforeEnter: (to: Route, from: Route, next: Function) => {
+        
+                    const role = store.state.preload.user.role;
+                    if (role === ERole.admin) {
+                        next();
+                    }
+                },
+                component: Users
+            },
+            {
+                path: '/profile',
+                name: 'Profile',
+                meta: {
+                    layout: 'default',
+                    requiresAuth: true
+                },
+                component: Profile
+            },
+            {
+                path: '/about',
+                name: 'About',
+                meta: {
+                    layout: 'default',
+                    requiresAuth: true
+                },
+                component: About
             }
-        },
-        component: Analytics
-    },
-    {
-        path: '/users',
-        name: 'Users',
-        meta: {
-            layout: 'default',
-            requiresAuth: true
-        },
-        beforeEnter: (to: Route, from: Route, next: Function) => {
-
-            const role = store.state.preload.user.role;
-            if (role === ERole.admin) {
-                next();
-            }
-        },
-        component: Users
-    },
-    {
-        path: '/profile',
-        name: 'Profile',
-        meta: {
-            layout: 'default',
-            requiresAuth: true
-        },
-        component: Profile
-    },
-    {
-        path: '/about',
-        name: 'About',
-        meta: {
-            layout: 'default',
-            requiresAuth: true
-        },
-        component: About
+        ]
     }
 ]
 
 const router = new VueRouter({
-    mode: 'history',
     base: process.env.BASE_URL,
     routes
 })

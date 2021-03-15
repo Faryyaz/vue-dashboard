@@ -7,16 +7,7 @@ import './scss/main.scss'
 import { auth } from './firebase'
 import './filters'
 
-import axios from 'axios'
-
-Vue.prototype.$axios = axios;
 Vue.config.productionTip = false;
-
-Vue.mixin({
-    beforeRouteUpdate() {
-        console.log("Mixin route");
-    }
-});
 
 let app: Vue;
 auth.onAuthStateChanged(() => {

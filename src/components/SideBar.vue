@@ -1,10 +1,9 @@
 <template>
     <v-navigation-drawer
-        :mini-variant="miniVariant"
+        v-model="drawer"
         app
         class="blue-grey darken-3"
         dark
-        permanent
     >
         <template v-slot:prepend>
             <v-list-item two-line class="blue-grey darken-4">
@@ -80,8 +79,8 @@ import { ERole } from '../datamodels/User'
 
 @Component
 export default class SideBar extends Vue {
-    @Prop({ default: false })
-    miniVariant!: boolean;
+    @Prop({ default: true })
+    value!: boolean;
 
     items: Array<any> = [
         {
@@ -129,6 +128,14 @@ export default class SideBar extends Vue {
             permissions: [ ERole.admin, ERole.staff, ERole.visitor ]
         },
     ];
+
+    get drawer() {
+        return this.value;
+    }
+
+    set drawer(value: boolean) {
+        this.$emit('toggle-sidebar', value);
+    }
 
     get fullName() {
         const user = this.$store.state.preload.user;

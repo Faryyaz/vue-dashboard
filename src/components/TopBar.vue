@@ -1,12 +1,5 @@
 <template>
     <v-app-bar color="white" app dense elevation="1">
-        <v-progress-linear
-            v-if="loading"
-            color="secondary"
-            absolute
-            top
-            indeterminate
-        ></v-progress-linear>
         <v-app-bar-nav-icon
             @click="$emit('toggle-sidebar')"
         ></v-app-bar-nav-icon>
@@ -30,6 +23,13 @@
                 </v-list-item>
             </v-list>
         </v-menu>
+        <v-progress-linear
+            v-if="loading"
+            color="secondary"
+            absolute
+            top
+            indeterminate
+        ></v-progress-linear>
     </v-app-bar>
 </template>
 <script lang="ts">

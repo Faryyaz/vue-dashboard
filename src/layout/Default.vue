@@ -1,7 +1,7 @@
 <template>
     <main>
         <top-bar v-on:toggle-sidebar="toggleSidebar()"></top-bar>
-        <side-bar :mini-variant="miniVariant"></side-bar>
+        <side-bar v-on:toggle-sidebar="toggleSidebar($event)" v-model="drawer"></side-bar>
         <v-main>
             <v-container>
                 <transition name="fade" mode="out-in">
@@ -23,10 +23,10 @@ import TopBar from '../components/TopBar.vue'
     },
 })
 export default class Default extends Vue {
-    miniVariant = false;
+    drawer = true;
 
-    toggleSidebar() {
-        this.miniVariant = !this.miniVariant;
+    toggleSidebar(value: boolean) {
+        this.drawer = value || !this.drawer;
     }
 }
 </script>

@@ -142,28 +142,33 @@ export default class Overview extends Vue {
         {
             text: 'Country',
             align: 'start',
-            sortable: true,
+            sortable: false,
             value: 'country'
         },
         { 
             text: 'Cases', 
-            value: 'cases'
+            value: 'cases',
+            sortable: false
         },
         { 
             text: 'Recovered', 
-            value: 'recovered'
+            value: 'recovered',
+            sortable: false
         },
         { 
             text: 'Critical', 
-            value: 'critical'
+            value: 'critical',
+            sortable: false
         },
         { 
             text: 'Deaths', 
-            value: 'deaths'
+            value: 'deaths',
+            sortable: false
         },
         { 
             text: 'Population', 
-            value: 'population'
+            value: 'population',
+            sortable: false
         }
     ];
 
@@ -309,8 +314,6 @@ export default class Overview extends Vue {
         //trigger the topbar loader
         this.$root.$emit('request-loading', true);
 
-        console.log(start, limit);
-
         try {
 
             const countryStatsCollection = await fb.countryStatsCollection.where('index', '>=', start).limit(limit).get();
@@ -347,6 +350,7 @@ export default class Overview extends Vue {
         } catch (error) {
             if (error) {
                 this.$root.$emit('request-loading', false);
+                console.log(error);
             }
         }
     }
