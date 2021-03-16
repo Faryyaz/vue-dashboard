@@ -79,8 +79,7 @@ import { ERole } from '../datamodels/User'
 
 @Component
 export default class SideBar extends Vue {
-    @Prop({ default: true })
-    value!: boolean;
+    drawer = true;
 
     items: Array<any> = [
         {
@@ -129,12 +128,10 @@ export default class SideBar extends Vue {
         },
     ];
 
-    get drawer() {
-        return this.value;
-    }
-
-    set drawer(value: boolean) {
-        this.$emit('toggle-sidebar', value);
+    mounted() {
+        this.$root.$on('toggle-sidebar', () => {
+            this.drawer = !this.drawer;
+        });
     }
 
     get fullName() {

@@ -1,7 +1,7 @@
 <template>
     <main>
-        <top-bar v-on:toggle-sidebar="toggleSidebar()"></top-bar>
-        <side-bar v-on:toggle-sidebar="toggleSidebar($event)" v-model="drawer"></side-bar>
+        <top-bar></top-bar>
+        <side-bar></side-bar>
         <v-main>
             <v-container>
                 <transition name="fade" mode="out-in">
@@ -22,13 +22,7 @@ import TopBar from '../components/TopBar.vue'
         TopBar
     },
 })
-export default class Default extends Vue {
-    drawer = true;
-
-    toggleSidebar(value: boolean) {
-        this.drawer = value || !this.drawer;
-    }
-}
+export default class Default extends Vue { }
 </script>
 <style lang="scss">
 .fade-enter-active,

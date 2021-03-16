@@ -1,7 +1,7 @@
 <template>
     <v-app-bar color="white" app dense elevation="1">
         <v-app-bar-nav-icon
-            @click="$emit('toggle-sidebar')"
+            @click="toggleSidebar()"
         ></v-app-bar-nav-icon>
         <v-toolbar-title>
             <div class="d-flex align-center">
@@ -64,6 +64,10 @@ export default class TopBar extends Vue {
                 this.$store.commit('unsetUserProfile');
             });
         }, 300);        
+    }
+
+    toggleSidebar() {
+        this.$root.$emit('toggle-sidebar');
     }
 }
 </script>
