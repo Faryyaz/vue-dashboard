@@ -2,6 +2,28 @@
     <v-card min-height="500px">
         <v-card-title>Analytics</v-card-title>
         <v-card-text>
+            <v-container v-if="loading" style="height: 400px;">
+                <v-row
+                class="fill-height"
+                align-content="center"
+                justify="center"
+                >
+                <v-col
+                    class="subtitle-1 text-center"
+                    cols="12"
+                >
+                    Fetching data
+                </v-col>
+                <v-col cols="6">
+                    <v-progress-linear
+                    color="primary"
+                    indeterminate
+                    rounded
+                    height="5"
+                    ></v-progress-linear>
+                </v-col>
+                </v-row>
+            </v-container>
             <canvas class="js-canvas"></canvas>
         </v-card-text>
     </v-card>
@@ -20,6 +42,7 @@ export default class Analytics extends Vue {
     infoColor: VuetifyThemeItem = this.$vuetify.theme.currentTheme.info;
     primaryColor: VuetifyThemeItem = this.$vuetify.theme.currentTheme.primary;
     errorColor: VuetifyThemeItem = this.$vuetify.theme.currentTheme.error;
+    loading = false;
 
     datasets = {
         cases: {
@@ -101,6 +124,7 @@ export default class Analytics extends Vue {
 
         //trigger the topbar loader
         this.$root.$emit('request-loading', true);
+        this.loading = true;
 
         try {
             const casesStats = await fb.casesStatsCollection.get();
@@ -124,24 +148,26 @@ export default class Analytics extends Vue {
 
             if (deathsStats) {
                 deathsStats.forEach((doc) => {
-                    const { date, value } = doc.data();
+                    const { value } = doc.data();
                     this.datasets.deaths.data.push(value);
                 });
             }
 
             if (recoveredStats) {
                 recoveredStats.forEach((doc) => {
-                    const { date, value } = doc.data();
+                    const { value } = doc.data();
                     this.datasets.recovered.data.push(value);
                 });
             }
 
             this.$root.$emit('request-loading', false);
+            this.loading = false;
             this.plot();
         } catch (error) {
             if (error) {
                 console.log(error);
                 this.$root.$emit('request-loading', false);
+                this.loading = false;
             }
         }
     }
