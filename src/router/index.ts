@@ -12,6 +12,26 @@ import { ERole } from '../datamodels/User'
 
 Vue.use(VueRouter)
 
+/**
+ * Fetch the role from the server 
+ * if it is not set in the store
+ * @returns role
+ */
+const fetchRole = async () => {
+    let role = store.state.preload.user.role;
+    if (!role) {
+        const currentUser = fb.auth.currentUser;
+        if (currentUser) {
+            const userProfile = await fb.usersCollection.doc(currentUser.uid).get();
+            const data = userProfile.data();
+            if (data) {
+                role = data.role;
+            }
+        }                        
+    }
+    return role;
+}
+
 const routes: Array<RouteConfig> = [
     {
         path: '/login',
@@ -63,9 +83,10 @@ const routes: Array<RouteConfig> = [
                     layout: 'default',
                     requiresAuth: true
                 },
-                beforeEnter: (to: Route, from: Route, next: Function) => {
+                beforeEnter: async (to: Route, from: Route, next: Function) => {
         
-                    const role = store.state.preload.user.role;
+                    const role = await fetchRole();
+
                     if (role === ERole.admin || role === ERole.staff) {
                         next();
                     }
@@ -79,9 +100,10 @@ const routes: Array<RouteConfig> = [
                     layout: 'default',
                     requiresAuth: true
                 },
-                beforeEnter: (to: Route, from: Route, next: Function) => {
-        
-                    const role = store.state.preload.user.role;
+                beforeEnter: async (to: Route, from: Route, next: Function) => {
+                    
+                    const role = await fetchRole();
+
                     if (role === ERole.admin) {
                         next();
                     }
