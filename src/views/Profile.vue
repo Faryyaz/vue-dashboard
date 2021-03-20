@@ -10,7 +10,7 @@
                             :prepend-icon="field.icon"
                             :key="field.attr.name" 
                             :is="field.type"
-                            @input="passwordConfirmationRule(field.attr.name)"
+                            @input="checkPassword(field.attr.name)"
                             v-model="field.value"
                             v-bind="field.attr">
                         </component>
@@ -267,25 +267,10 @@ export default class Profile extends Vue {
         return $valid;
     }
 
-    /**
-     * Check if password matches
-     */
-    passwordConfirmationRule(fieldName: string): void {
-        if (fieldName === 'password' || fieldName ===  'confirmPassword') {
-            if ((this.form as any)['confirmPassword'].value !== '') {
-                if ((this.form as any)['password'].value === (this.form as any)['confirmPassword'].value) {
-                    this.$set((this.form as any)['confirmPassword'].attr, 'error', false);
-                    this.$set((this.form as any)['confirmPassword'].attr, 'errorMessages', '');
-                } else {
-                    this.$set((this.form as any)['confirmPassword'].attr, 'error', true);
-                    this.$set((this.form as any)['confirmPassword'].attr, 'errorMessages', 'Password must match');
-                }
-            }
-        }
+    checkPassword(field: string) {
+        this.validationRules.passwordConfirmationRule(field, this.form, this);
     }
 
-    //@TODO check this; update password not working correctly
-    // must be login recently for it to work
     async updateProfile() {
 
         try {

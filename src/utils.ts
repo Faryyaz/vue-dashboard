@@ -1,3 +1,5 @@
+import Vue from "vue";
+
 export class ValidationRules {
 
     required(v: any): any {
@@ -28,6 +30,26 @@ export class ValidationRules {
     password(v: any) {
         if (!v) return true;
         else return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(v) || "Please input a valid password";
+    }
+
+    /**
+     * Check if password matches
+     * @param {string} fieldName the password/confirmPassword field
+     * @param {object} form the form object containing all the input fields
+     * @param {Vue} vm the vue instance
+     */
+     passwordConfirmationRule(fieldName: string, form: object, vm: Vue): void {
+        if (fieldName === 'password' || fieldName ===  'confirmPassword') {
+            if ((form as any)['confirmPassword'].value !== '') {
+                if ((form as any)['password'].value === (form as any)['confirmPassword'].value) {
+                    vm.$set((form as any)['confirmPassword'].attr, 'error', false);
+                    vm.$set((form as any)['confirmPassword'].attr, 'errorMessages', '');
+                } else {
+                    vm.$set((form as any)['confirmPassword'].attr, 'error', true);
+                    vm.$set((form as any)['confirmPassword'].attr, 'errorMessages', 'Password must match');
+                }
+            }
+        }
     }
 
 }

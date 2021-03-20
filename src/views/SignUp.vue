@@ -3,7 +3,8 @@
         <template v-for="field in form">
             <component 
                 :prepend-icon="field.icon"
-                :key="field.attr.name" 
+                :key="field.attr.name"
+                @input="checkPassword(field.attr.name)"
                 :is="field.type"
                 v-model="field.value"
                 v-bind="field.attr">
@@ -100,10 +101,15 @@ export default class SignUp extends Vue {
                 type: 'password',
                 label: 'Confirm password',
                 name: 'confirmPassword',
+                error: false,
                 required: true,
                 rules: [this.validationRules.required]
             }
         }
+    }
+
+    checkPassword(field: string) {
+        this.validationRules.passwordConfirmationRule(field, this.form, this);
     }
 
     async onSignUp() {
