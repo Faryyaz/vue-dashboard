@@ -78,11 +78,13 @@ export default class Notifier extends Vue implements INotifier {
 
 }
 </script>
-<style scoped>
-    .v-snack /deep/ .v-snack__wrapper {
-        min-width: 400px;
-        height: auto;
-        max-width: 400px;
+<style lang="scss" scoped>
+    .v-snack {
+        ::v-deep .v-snack__wrapper {
+            min-width: 400px;
+            height: auto;
+            max-width: 400px;
+        }
     }
     
     .btn-absolute-right {
