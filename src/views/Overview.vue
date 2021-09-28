@@ -1,5 +1,26 @@
 <template>
-    <div>
+    <div v-if="role === erole.admin">
+        <grid-layout :layout.sync="layout"
+                 :col-num="12"
+                 :row-height="30"
+                 :is-draggable="draggable"
+                 :is-resizable="resizable"
+                 :vertical-compact="true"
+                 :use-css-transforms="true"
+        >
+            <grid-item v-for="item in layout"
+                :static="item.static"
+                :x="item.x"
+                :y="item.y"
+                :w="item.w"
+                :h="item.h"
+                :i="item.i"
+                :key="item.i">
+                <span class="text">{{itemTitle(item)}}</span>
+            </grid-item>
+        </grid-layout>
+    </div>
+    <div v-else>
         <v-row class="pt-3">
             <v-col cols="12" sm="6" md="3" 
                 v-for="item of overviewBoxStats" 
@@ -43,6 +64,8 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import StatsBox from '../components/StatsBox.vue'
 import OverviewGraph from '../components/OverviewGraph.vue'
 import * as fb from '../firebase'
+import { GridLayout, GridItem } from 'vue-grid-layout'
+import { ERole } from '../datamodels/User'
 
 type TTableStats = { 
     country: string; 
@@ -56,10 +79,39 @@ type TTableStats = {
 @Component({
     components: {
         StatsBox,
-        OverviewGraph
+        OverviewGraph,
+        GridLayout,
+        GridItem
     }
 })
 export default class Overview extends Vue {
+    erole = ERole;
+
+    layout = [
+        {"x":0,"y":0,"w":2,"h":2,"i":"0", static: false},
+        {"x":2,"y":0,"w":2,"h":4,"i":"1", static: false},
+        {"x":4,"y":0,"w":2,"h":5,"i":"2", static: false},
+        {"x":6,"y":0,"w":2,"h":3,"i":"3", static: false},
+        {"x":8,"y":0,"w":2,"h":3,"i":"4", static: false},
+        {"x":10,"y":0,"w":2,"h":3,"i":"5", static: false},
+        {"x":0,"y":5,"w":2,"h":5,"i":"6", static: false},
+        {"x":2,"y":5,"w":2,"h":5,"i":"7", static: false},
+        {"x":4,"y":5,"w":2,"h":5,"i":"8", static: false},
+        {"x":6,"y":3,"w":2,"h":4,"i":"9", static: false},
+        {"x":8,"y":4,"w":2,"h":4,"i":"10", static: false},
+        {"x":10,"y":4,"w":2,"h":4,"i":"11", static: false},
+        {"x":0,"y":10,"w":2,"h":5,"i":"12", static: false},
+        {"x":2,"y":10,"w":2,"h":5,"i":"13", static: false},
+        {"x":4,"y":8,"w":2,"h":4,"i":"14", static: false},
+        {"x":6,"y":8,"w":2,"h":4,"i":"15", static: false},
+        {"x":8,"y":10,"w":2,"h":5,"i":"16", static: false},
+        {"x":10,"y":4,"w":2,"h":2,"i":"17", static: false},
+        {"x":0,"y":9,"w":2,"h":3,"i":"18", static: false},
+        {"x":2,"y":6,"w":2,"h":2,"i":"19", static: false}
+    ];
+    draggable = true;
+    resizable = true;
+    index = 0;
 
     overviewBoxStats = {
         cases: {
@@ -206,6 +258,19 @@ export default class Overview extends Vue {
         this.fetchChartStats('casesStatsCollection', 'cases');
         this.fetchChartStats('deathsStatsCollection', 'deaths');
         this.fetchChartStats('recoveredStatsCollection', 'recovered');
+    }
+
+    get role() {
+        const user = this.$store.state.preload.user;
+        return user.role;
+    }
+
+    itemTitle(item: any) {
+        let result = item.i;
+        if (item.static) {
+            result += " - Static";
+        }
+        return result;
     }
 
     /**
