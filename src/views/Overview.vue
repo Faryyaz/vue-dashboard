@@ -2,22 +2,50 @@
     <div v-if="role === erole.admin">
         <grid-layout :layout.sync="layout"
                  :col-num="12"
-                 :row-height="30"
+                 :row-height="40"
+                 :responsive="true"
                  :is-draggable="draggable"
                  :is-resizable="resizable"
                  :vertical-compact="true"
-                 :use-css-transforms="true"
+                 :use-css-transforms="false"
         >
-            <grid-item v-for="item in layout"
-                :static="item.static"
-                :x="item.x"
-                :y="item.y"
-                :w="item.w"
-                :h="item.h"
-                :i="item.i"
-                :key="item.i">
-                <span class="text">{{itemTitle(item)}}</span>
-            </grid-item>
+            <template v-for="item in layout">
+                <grid-item 
+                    :static="item.static"
+                    :x="item.x"
+                    :y="item.y"
+                    :w="item.w"
+                    :h="item.h"
+                    :i="item.i"
+                    :key="item.i">
+                    <template v-if="item.type === 'stats'">
+                        <stats-box :stat="overviewBoxStats[item.name].stat"></stats-box>
+                    </template>
+                    <template v-if="item.type === 'chart'">
+                        <overview-graph :stat="overviewChartStats[item.name].stat"></overview-graph>
+                    </template>
+                    <template v-if="item.type === 'table'">
+                        <v-data-table
+                            :headers="headers"
+                            :items="tableStats"
+                            :options.sync="options"
+                            :server-items-length="serverItemsLength"
+                            :footer-props="footerProps"
+                            class="elevation-1">
+                            <template v-slot:item="{ item }">
+                                <tr>
+                                    <td class="text-capitalize">{{ item.country }}</td>
+                                    <td>{{ item.cases }}</td>
+                                    <td>{{ item.recovered }}</td>
+                                    <td>{{ item.critical }}</td>
+                                    <td>{{ item.deaths }}</td>
+                                    <td>{{ item.population|formatNumber() }}</td>
+                                </tr>
+                            </template>
+                        </v-data-table>
+                    </template>
+                </grid-item>
+            </template>
         </grid-layout>
     </div>
     <div v-else>
@@ -88,30 +116,17 @@ export default class Overview extends Vue {
     erole = ERole;
 
     layout = [
-        {"x":0,"y":0,"w":2,"h":2,"i":"0", static: false},
-        {"x":2,"y":0,"w":2,"h":4,"i":"1", static: false},
-        {"x":4,"y":0,"w":2,"h":5,"i":"2", static: false},
-        {"x":6,"y":0,"w":2,"h":3,"i":"3", static: false},
-        {"x":8,"y":0,"w":2,"h":3,"i":"4", static: false},
-        {"x":10,"y":0,"w":2,"h":3,"i":"5", static: false},
-        {"x":0,"y":5,"w":2,"h":5,"i":"6", static: false},
-        {"x":2,"y":5,"w":2,"h":5,"i":"7", static: false},
-        {"x":4,"y":5,"w":2,"h":5,"i":"8", static: false},
-        {"x":6,"y":3,"w":2,"h":4,"i":"9", static: false},
-        {"x":8,"y":4,"w":2,"h":4,"i":"10", static: false},
-        {"x":10,"y":4,"w":2,"h":4,"i":"11", static: false},
-        {"x":0,"y":10,"w":2,"h":5,"i":"12", static: false},
-        {"x":2,"y":10,"w":2,"h":5,"i":"13", static: false},
-        {"x":4,"y":8,"w":2,"h":4,"i":"14", static: false},
-        {"x":6,"y":8,"w":2,"h":4,"i":"15", static: false},
-        {"x":8,"y":10,"w":2,"h":5,"i":"16", static: false},
-        {"x":10,"y":4,"w":2,"h":2,"i":"17", static: false},
-        {"x":0,"y":9,"w":2,"h":3,"i":"18", static: false},
-        {"x":2,"y":6,"w":2,"h":2,"i":"19", static: false}
+        {"x":0,"y":0,"w":3,"h":3,"i":"0","static":false,"type":"stats","name":"cases","moved":false},
+        {"x":0,"y":3,"w":3,"h":3,"i":"1","static":false,"type":"stats","name":"deaths","moved":false},
+        {"x":7,"y":0,"w":3,"h":3,"i":"2","static":false,"type":"stats","name":"critical","moved":false},
+        {"x":7,"y":3,"w":3,"h":3,"i":"3","static":false,"type":"stats","name":"recovered","moved":false},
+        {"x":0,"y":6,"w":5,"h":7,"i":"4","static":false,"type":"chart","name":"cases","moved":false},
+        {"x":3,"y":0,"w":4,"h":6,"i":"5","static":false,"type":"chart","name":"deaths","moved":false},
+        {"x":5,"y":6,"w":5,"h":7,"i":"6","static":false,"type":"chart","name":"recovered","moved":false},
+        {"x":0,"y":13,"w":10,"h":6,"i":"7","static":false,"type":"table","name":"tableStats","moved":false}
     ];
     draggable = true;
     resizable = true;
-    index = 0;
 
     overviewBoxStats = {
         cases: {
@@ -235,6 +250,11 @@ export default class Overview extends Vue {
     };
 
     serverItemsLength = 0;
+
+    @Watch('layout', { immediate: true, deep: true })
+    onLayoutChanged(layout: any) {
+        console.log(JSON.stringify(layout));
+    }
 
     @Watch('options', { immediate: true, deep: true })
     onOptionsChanged(options: any) {

@@ -1,11 +1,10 @@
 <template>
-    <v-card>
+    <v-card height="100%">
         <v-card-text>
             <v-sheet
                 :color="stat.color"
                 elevation="2"
                 rounded
-                class="v-sheet--offset"
                 width="100%"
             >
                 <v-sparkline
@@ -18,7 +17,7 @@
                     height="150px"
                 ></v-sparkline>
             </v-sheet>
-            <v-divider></v-divider>
+            <v-divider class="my-2"></v-divider>
             <div class="pt-2">
                 <v-icon>{{ stat.icon }}</v-icon> {{ stat.title }}
             </div>

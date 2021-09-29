@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card height="100%">
         <v-card-title class="pb-2">
             <v-layout align-center>
                 <v-flex shrink>
@@ -7,7 +7,6 @@
                         :color="stat.icon.color"
                         elevation="2"
                         rounded
-                        class="v-sheet--offset"
                     >
                         <v-icon color="white" size="64" dark>
                             {{ stat.icon.name }}
