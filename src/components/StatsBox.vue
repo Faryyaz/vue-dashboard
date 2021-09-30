@@ -7,6 +7,7 @@
                         :color="stat.icon.color"
                         elevation="2"
                         rounded
+                        class="v-sheet--offset"
                     >
                         <v-icon color="white" size="64" dark>
                             {{ stat.icon.name }}

@@ -6,6 +6,7 @@ import Analytics from '../views/Analytics.vue'
 import Users from '../views/Users.vue'
 import Profile from '../views/Profile.vue'
 import About from '../views/About.vue'
+import Metrics from '../views/Metrics.vue'
 import * as fb from '../firebase'
 import store from '../store'
 import { ERole } from '../datamodels/User'
@@ -92,6 +93,23 @@ const routes: Array<RouteConfig> = [
                     }
                 },
                 component: Analytics
+            },
+            {
+                path: '/metrics',
+                name: 'Metrics',
+                meta: {
+                    layout: 'default',
+                    requiresAuth: true
+                },
+                beforeEnter: async (to: Route, from: Route, next: Function) => {
+        
+                    const role = await fetchRole();
+
+                    if (role === ERole.admin || role === ERole.staff) {
+                        next();
+                    }
+                },
+                component: Metrics
             },
             {
                 path: '/users',

@@ -1,54 +1,5 @@
 <template>
-    <div v-if="role === erole.admin">
-        <grid-layout :layout.sync="layout"
-                 :col-num="12"
-                 :row-height="40"
-                 :responsive="true"
-                 :is-draggable="draggable"
-                 :is-resizable="resizable"
-                 :vertical-compact="true"
-                 :use-css-transforms="false"
-        >
-            <template v-for="item in layout">
-                <grid-item 
-                    :static="item.static"
-                    :x="item.x"
-                    :y="item.y"
-                    :w="item.w"
-                    :h="item.h"
-                    :i="item.i"
-                    :key="item.i">
-                    <template v-if="item.type === 'stats'">
-                        <stats-box :stat="overviewBoxStats[item.name].stat"></stats-box>
-                    </template>
-                    <template v-if="item.type === 'chart'">
-                        <overview-graph :stat="overviewChartStats[item.name].stat"></overview-graph>
-                    </template>
-                    <template v-if="item.type === 'table'">
-                        <v-data-table
-                            :headers="headers"
-                            :items="tableStats"
-                            :options.sync="options"
-                            :server-items-length="serverItemsLength"
-                            :footer-props="footerProps"
-                            class="elevation-1">
-                            <template v-slot:item="{ item }">
-                                <tr>
-                                    <td class="text-capitalize">{{ item.country }}</td>
-                                    <td>{{ item.cases }}</td>
-                                    <td>{{ item.recovered }}</td>
-                                    <td>{{ item.critical }}</td>
-                                    <td>{{ item.deaths }}</td>
-                                    <td>{{ item.population|formatNumber() }}</td>
-                                </tr>
-                            </template>
-                        </v-data-table>
-                    </template>
-                </grid-item>
-            </template>
-        </grid-layout>
-    </div>
-    <div v-else>
+    <div>
         <v-row class="pt-3">
             <v-col cols="12" sm="6" md="3" 
                 v-for="item of overviewBoxStats" 
@@ -92,8 +43,6 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import StatsBox from '../components/StatsBox.vue'
 import OverviewGraph from '../components/OverviewGraph.vue'
 import * as fb from '../firebase'
-import { GridLayout, GridItem } from 'vue-grid-layout'
-import { ERole } from '../datamodels/User'
 
 type TTableStats = { 
     country: string; 
@@ -107,26 +56,10 @@ type TTableStats = {
 @Component({
     components: {
         StatsBox,
-        OverviewGraph,
-        GridLayout,
-        GridItem
+        OverviewGraph
     }
 })
 export default class Overview extends Vue {
-    erole = ERole;
-
-    layout = [
-        {"x":0,"y":0,"w":3,"h":3,"i":"0","static":false,"type":"stats","name":"cases","moved":false},
-        {"x":0,"y":3,"w":3,"h":3,"i":"1","static":false,"type":"stats","name":"deaths","moved":false},
-        {"x":7,"y":0,"w":3,"h":3,"i":"2","static":false,"type":"stats","name":"critical","moved":false},
-        {"x":7,"y":3,"w":3,"h":3,"i":"3","static":false,"type":"stats","name":"recovered","moved":false},
-        {"x":0,"y":6,"w":5,"h":7,"i":"4","static":false,"type":"chart","name":"cases","moved":false},
-        {"x":3,"y":0,"w":4,"h":6,"i":"5","static":false,"type":"chart","name":"deaths","moved":false},
-        {"x":5,"y":6,"w":5,"h":7,"i":"6","static":false,"type":"chart","name":"recovered","moved":false},
-        {"x":0,"y":13,"w":10,"h":6,"i":"7","static":false,"type":"table","name":"tableStats","moved":false}
-    ];
-    draggable = true;
-    resizable = true;
 
     overviewBoxStats = {
         cases: {
@@ -250,11 +183,6 @@ export default class Overview extends Vue {
     };
 
     serverItemsLength = 0;
-
-    @Watch('layout', { immediate: true, deep: true })
-    onLayoutChanged(layout: any) {
-        console.log(JSON.stringify(layout));
-    }
 
     @Watch('options', { immediate: true, deep: true })
     onOptionsChanged(options: any) {

@@ -6,6 +6,7 @@
                 elevation="2"
                 rounded
                 width="100%"
+                class="v-sheet--offset"
             >
                 <v-sparkline
                     :labels="stat.labels"

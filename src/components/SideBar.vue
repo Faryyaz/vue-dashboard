@@ -97,6 +97,11 @@ export default class SideBar extends Vue {
                     to: "Analytics",
                     permissions: [ ERole.admin, ERole.staff ]
                 },
+                {
+                    title: "Metrics",
+                    to: "Metrics",
+                    permissions: [ ERole.admin, ERole.staff ]
+                },
             ],
             permissions: [ ERole.admin, ERole.staff, ERole.visitor ]
         },
