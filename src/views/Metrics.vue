@@ -139,7 +139,7 @@ export default class Overview extends Vue {
             type: 'bar'
         };
 
-        const data = [trace1, trace2];
+        const data: any = [trace1, trace2];
 
         const layout = {
             title: 'Mixed chart'
